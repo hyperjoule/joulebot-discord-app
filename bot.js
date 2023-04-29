@@ -1,47 +1,16 @@
-import { REST } from '@discordjs/rest';
-import { WebSocketManager } from '@discordjs/ws';
-import {
-  GatewayDispatchEvents,
-  GatewayIntentBits,
-  InteractionType,
-  MessageFlags,
-  Client,
-} from '@discordjs/core';
-import dotenv from 'dotenv';
-
+const dotenv = require('dotenv');
 dotenv.config();
+// Require the necessary discord.js classes
+const { Client, Events, GatewayIntentBits } = require('discord.js');
 
-const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
+// Create a new client instance
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-const gateway = new WebSocketManager({
-  token: process.env.BOT_TOKEN,
-  intents: GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages | GatewayIntentBits.MessageContent,
-  rest,
+// When the client is ready, run this code (only once)
+// We use 'c' for the event parameter to keep it separate from the already defined 'client'
+client.once(Events.ClientReady, c => {
+	console.log(`Ready! Logged in as ${c.user.tag}`);
 });
 
-const client = new Client({ rest, gateway });
-
-client.on(GatewayDispatchEvents.InteractionCreate, async ({ data: interaction, api }) => {
-  if (interaction.type !== InteractionType.ApplicationCommand || interaction.data.name !== 'ping') {
-    return;
-  }
-
-  await api.interactions.reply(interaction.id, interaction.token, { content: 'Pong!', flags: MessageFlags.Ephemeral });
-});
-
-client.once(GatewayDispatchEvents.Ready, async () => {
-  console.log('Ready!');
-
-  // Iterate over all guilds
-  client.guilds.cache.forEach(async (guild) => {
-    // Try to find a channel named 'general'
-    const generalChannel = guild.channels.cache.find(channel => channel.name === 'general' && channel.type === 'GUILD_TEXT');
-
-    // If a 'general' channel was found, send a message
-    if (generalChannel) {
-      await generalChannel.send('I am online!'); 
-    }
-  });
-});
-
-gateway.connect();
+// Log in to Discord with your client's token
+client.login(process.env.BOT_TOKEN);
