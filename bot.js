@@ -1,6 +1,6 @@
 const dotenv = require('dotenv');
 dotenv.config();
-const { Client, GatewayIntentBits, EmbedBuilder , MessageActionRow, MessageSelectMenu } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { handleSend, generateImage } = require('./chatbot_api');
 const client = new Client({intents: [GatewayIntentBits.Guilds]});
 let userInput = '';
@@ -12,7 +12,7 @@ client.on('ready', async () => {
 	const commands = await client.guilds.cache.get(process.env.GUILD_ID)?.commands.set([
 		{
 			name: 'ask',
-			description: 'Ask a question to the bot',
+			description: 'Ask Joulebot 2.0 anything!',
 			options: [
 				{
 					name: 'question',
@@ -24,7 +24,7 @@ client.on('ready', async () => {
 		},
 		{
 			name: 'draw',
-			description: 'Generate an image based on a description',
+			description: 'Have Joulebot request an image from Dall-E!',
 			options: [
 				{
 					name: 'description',
