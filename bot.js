@@ -1,9 +1,8 @@
-const dotenv = require('dotenv');
-dotenv.config();
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { handleSend, generateImage } = require('./chatbot_api');
 const client = new Client({intents: [GatewayIntentBits.Guilds]});
-let userInput = '';
+const dotenv = require('dotenv');
+dotenv.config();
 
 client.on('ready', async () => {
 	console.log(`Ready! Logged in as ${client.user.tag}`);
