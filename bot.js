@@ -1,16 +1,46 @@
+// bot.js
+
 const dotenv = require('dotenv');
 dotenv.config();
-// Require the necessary discord.js classes
-const { Client, Events, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, MessageEmbed, MessageActionRow, MessageSelectMenu } = require('discord.js');
+const { handleSend } = require('./chatbot_api');
 
-// Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({intents: [GatewayIntentBits.Guilds]});
 
-// When the client is ready, run this code (only once)
-// We use 'c' for the event parameter to keep it separate from the already defined 'client'
-client.once(Events.ClientReady, c => {
-	console.log(`Ready! Logged in as ${c.user.tag}`);
+client.on('ready', async () => {
+	console.log(`Ready! Logged in as ${client.user.tag}`);
+
+	// Register slash commands
+	const commands = await client.guilds.cache.get(process.env.GUILD_ID)?.commands.set([
+		{
+			name: 'ask',
+			description: 'Ask a question to the bot',
+			options: [
+				{
+					name: 'question',
+					type: 3, // STRING
+					description: 'Your question',
+					required: true
+				}
+			]
+		}
+	]);
+
+	console.log('Registered slash commands:', commands);
 });
 
-// Log in to Discord with your client's token
+client.on('interactionCreate', async interaction => {
+	console.log('Interaction received:', interaction.commandName);
+	if (!interaction.isCommand() && interaction.type !== 'MESSAGE_COMPONENT') return;
+
+	switch (interaction.commandName) {
+	case 'ask':
+		await interaction.deferReply();
+		const userInput = interaction.options.getString('question');
+		const chatbotResponse = await handleSend(userInput);
+		await interaction.editReply(chatbotResponse);
+		break;
+	}
+});
+
 client.login(process.env.BOT_TOKEN);
