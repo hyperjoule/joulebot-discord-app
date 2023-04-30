@@ -1,11 +1,8 @@
 const dotenv = require('dotenv');
 dotenv.config();
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { handleSend, generateImage } = require('./chatbot_api');
-const { personalityTitles } = require('./personalities');
+const { Client, GatewayIntentBits } = require('discord.js');
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-
-let selectedPersonalityIdx = 0;
+const { handleAskCommand, handleDrawCommand, handlePersonalityCommand } = require('./commandHandlers');
 
 client.on('ready', async () => {
 	console.log(`Ready! Logged in as ${client.user.tag}`);
@@ -53,35 +50,6 @@ client.on('ready', async () => {
 
 	console.log('Registered slash commands:', commands);
 });
-
-async function handleAskCommand(interaction) {
-	await interaction.deferReply();
-	const userName = interaction.member.displayName;
-	const userInput = interaction.options.getString('question');
-	const chatbotResponse = await handleSend(userInput, selectedPersonalityIdx);
-	await interaction.editReply(`**${userName} asks:** ${userInput}\n\n**Joulebot:** ${chatbotResponse}`);
-}
-
-async function handleDrawCommand(interaction) {
-	await interaction.deferReply();
-	const userName = interaction.member.displayName;
-	const imageDescription = interaction.options.getString('description');
-	const imageUrl = await generateImage(imageDescription);
-	if (imageUrl) {
-		const imageEmbed = new EmbedBuilder()
-			.setColor('#0099ff')
-			.setTitle(`**${userName} requested:** ${imageDescription}`)
-			.setImage(imageUrl);
-		await interaction.editReply({ embeds: [imageEmbed] });
-	} else {
-		await interaction.editReply("I'm sorry, but I'm having trouble generating an image right now. Please try again later.");
-	}
-}
-
-async function handlePersonalityCommand(interaction) {
-	selectedPersonalityIdx = parseInt(interaction.options.getString('choice'));
-	await interaction.reply(`Personality set to: ${personalityTitles[selectedPersonalityIdx].label}`);
-}
 
 client.on('interactionCreate', async interaction => {
 	console.log('Interaction received:', interaction.commandName);
