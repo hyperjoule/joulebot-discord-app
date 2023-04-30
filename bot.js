@@ -1,8 +1,8 @@
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { handleSend, generateImage } = require('./chatbot_api');
-const client = new Client({intents: [GatewayIntentBits.Guilds]});
 const dotenv = require('dotenv');
 dotenv.config();
+const { Client, GatewayIntentBits, EmbedBuilder} = require('discord.js');
+const { handleSend, generateImage } = require('./chatbot_api');
+const client = new Client({intents: [GatewayIntentBits.Guilds]});
 
 client.on('ready', async () => {
 	console.log(`Ready! Logged in as ${client.user.tag}`);
@@ -11,7 +11,7 @@ client.on('ready', async () => {
 	const commands = await client.guilds.cache.get(process.env.GUILD_ID)?.commands.set([
 		{
 			name: 'ask',
-			description: 'Ask Joulebot 2.0 anything!',
+			description: 'Ask Joulebot a question!',
 			options: [
 				{
 					name: 'question',

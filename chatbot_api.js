@@ -1,4 +1,6 @@
 // chatbot_api.js
+const dotenv = require('dotenv');
+dotenv.config();
 const axios = require('axios');
 const { personalityArray, temperatureArray } = require('./personalities');
 const API_KEY = process.env.API_KEY
@@ -8,7 +10,7 @@ const MAX_HISTORY = 15 // I've played with this a bit but 10 seems to work well 
 const MAX_RETRIES = 3
 const conversationHistory = []
 
-const generateImage = async (prompt, apiKey = API_KEY) => {
+const generateImage = async (prompt) => {
 	try {
 		const response = await axios.post(
 			'https://api.openai.com/v1/images/generations',
@@ -22,7 +24,7 @@ const generateImage = async (prompt, apiKey = API_KEY) => {
 			{
 				headers: {
 					'Content-Type': 'application/json',
-					Authorization: `Bearer ${apiKey}`
+					Authorization: `Bearer ${API_KEY}`
 				}
 			}
 		)
@@ -39,7 +41,7 @@ const generateImage = async (prompt, apiKey = API_KEY) => {
 	}
 }
 
-const handleSend = async (textInput, personalityIdx = 0, apiKey = API_KEY) => {
+const handleSend = async (textInput, personalityIdx = 0) => {
 	let retries = 0
 	let retryDelay = 500
 
@@ -75,7 +77,7 @@ const handleSend = async (textInput, personalityIdx = 0, apiKey = API_KEY) => {
 				{
 					headers: {
 						'Content-Type': 'application/json',
-						Authorization: `Bearer ${apiKey}`
+						Authorization: `Bearer ${API_KEY}`
 					}
 				}
 			)
