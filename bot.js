@@ -81,12 +81,11 @@ client.on('messageCreate', async (message) => {
 	} else if (message.reference?.messageId) {
 		await handleReply(message);
 	} else {
-		// Get the first nine characters of the bot's username in lowercase
 		const botUsernamePrefix = client.user.username.substring(0, 8).toLowerCase();
-		// Convert the message content to lowercase
 		const messageContentLower = message.content.toLowerCase();
-		// Check if the message content includes the bot's username prefix
 		if (messageContentLower.includes(botUsernamePrefix)) {
+			await handleDirectMessage(message);
+		}	else if (message.mentions.users.has(client.user.id)) {
 			await handleDirectMessage(message);
 		}
 	}
