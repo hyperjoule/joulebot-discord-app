@@ -33,9 +33,25 @@ async function handlePersonalityCommand(interaction) {
 	await interaction.reply(`Personality set to: ${personalityTitles[selectedPersonalityIdx].label}`);
 }
 
+async function handleDirectMessage(message) { 
+	const userName = message.author.username;
+	const userInput = message.content;
+	const chatbotResponse = await handleSend(userName + ' asks: ' + userInput, selectedPersonalityIdx);
+	await message.reply(chatbotResponse);
+}
+
+async function handleReply(message) { 
+	const userName = message.author.username;
+	const userInput = message.content;
+	const chatbotResponse = await handleSend(userName + ' responds: ' + userInput, selectedPersonalityIdx);
+	await message.reply(chatbotResponse);
+}
+
 module.exports = {
 	handleAskCommand,
 	handleDrawCommand,
 	handlePersonalityCommand,
+	handleDirectMessage,
+	handleReply,
 	selectedPersonalityIdx
 };

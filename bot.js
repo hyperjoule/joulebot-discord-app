@@ -1,8 +1,29 @@
 const dotenv = require('dotenv');
 dotenv.config();
-const { Client, GatewayIntentBits } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] }); // Include GatewayIntentBits.GuildMembers
-const { handleAskCommand, handleDrawCommand, handlePersonalityCommand } = require('./commandHandlers');
+const { Client, GatewayIntentBits, Partials } = require('discord.js');
+const client = new Client({
+	intents: [
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.GuildMessages,
+		GatewayIntentBits.GuildMembers,
+		GatewayIntentBits.DirectMessageTyping,
+		GatewayIntentBits.MessageContent, 
+		GatewayIntentBits.DirectMessages,
+		GatewayIntentBits.DirectMessageReactions 
+	],
+	partials: [
+		Partials.Channel,
+		Partials.Message,
+		Partials.GuildMember,
+		Partials.User
+	]
+});
+const { handleAskCommand, 
+	handleDrawCommand, 
+	handlePersonalityCommand, 
+	handleDirectMessage,
+	handleReply } = require('./commandHandlers');
 const { schedule_random_dm } = require('./random_dm');
 
 client.on('ready', async () => {
@@ -48,7 +69,32 @@ client.on('ready', async () => {
 			]
 		}
 	]);
-	// console.log('Registered slash commands:', commands);
+});
+
+client.on('messageCreate', async (message) => {
+	// Ignore messages from bots
+	if (message.author.bot) return;
+
+	// Check if the message is a direct message or a reply
+	if (message.channel.type === 1) {
+		await handleDirectMessage(message);
+	} else if (message.reference?.messageId) {
+		await handleReply(message);
+	} else {
+		// Get the first nine characters of the bot's username in lowercase
+		const botUsernamePrefix = client.user.username.substring(0, 8).toLowerCase();
+		// Convert the message content to lowercase
+		const messageContentLower = message.content.toLowerCase();
+		// Check if the message content includes the bot's username prefix
+		if (messageContentLower.includes(botUsernamePrefix)) {
+			await handleDirectMessage(message);
+		}
+	}
+
+});
+
+client.on('error', (error) => {
+	console.error('Discord client error:', error);
 });
 
 client.on('interactionCreate', async interaction => {
