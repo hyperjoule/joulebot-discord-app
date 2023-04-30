@@ -61,10 +61,11 @@ client.on('interactionCreate', async interaction => {
 	switch (interaction.commandName) {
 	case 'ask':
 		await interaction.deferReply();
+		const userName = interaction.user.username; 
 		const userInput = interaction.options.getString('question');
 		imageTitle = userInput;
-		const chatbotResponse = await handleSend(userInput, selectedPersonalityIdx);
-		await interaction.editReply(chatbotResponse);
+		const chatbotResponse = await handleSend(`**${userName} asks:** ${userInput}`, selectedPersonalityIdx);
+		await interaction.editReply(`**${userName} asks:** ${userInput}\n\n**Joulebot:** ${chatbotResponse}`);
 		break;
 	case 'draw':
 		await interaction.deferReply();
@@ -73,7 +74,7 @@ client.on('interactionCreate', async interaction => {
 		if (imageUrl) {
 			const imageEmbed = new EmbedBuilder ()
 				.setColor('#0099ff')
-				.setTitle(interaction.options.getString('description'))
+				.setTitle(`**${interaction.user.username} requested:** ` + interaction.options.getString('description'))
 				.setImage(imageUrl);
 			await interaction.editReply({ embeds: [imageEmbed] });
 		} else {
