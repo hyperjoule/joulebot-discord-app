@@ -1,12 +1,13 @@
 const dotenv = require('dotenv');
 dotenv.config();
 const { Client, GatewayIntentBits } = require('discord.js');
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMembers] }); // Include GatewayIntentBits.GuildMembers
 const { handleAskCommand, handleDrawCommand, handlePersonalityCommand } = require('./commandHandlers');
+const { schedule_random_dm } = require('./random_dm');
 
 client.on('ready', async () => {
 	console.log(`Ready! Logged in as ${client.user.tag}`);
-
+	schedule_random_dm(client);
 	// Register slash commands
 	const commands = await client.guilds.cache.get(process.env.GUILD_ID)?.commands.set([
 		{
@@ -47,8 +48,7 @@ client.on('ready', async () => {
 			]
 		}
 	]);
-
-	console.log('Registered slash commands:', commands);
+	// console.log('Registered slash commands:', commands);
 });
 
 client.on('interactionCreate', async interaction => {

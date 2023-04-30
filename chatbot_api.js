@@ -41,13 +41,13 @@ const generateImage = async (prompt) => {
 	}
 }
 
-const handleSend = async (textInput, personalityIdx = 0) => {
+const handleSend = async (textInput, personalityIdx = 0, isRandom = false) => {
 	let retries = 0
 	let retryDelay = 500
 
 	// Add the user's input message to the conversation history
 	conversationHistory.push({ role: 'user', content: textInput })
-
+	console.log(textInput)
 	// Limit the conversation history to the last MAX_HISTORY messages
 	if (conversationHistory.length > MAX_HISTORY) {
 		conversationHistory.shift()
@@ -88,7 +88,7 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 			if (conversationHistory.length > MAX_HISTORY) {
 				conversationHistory.shift()
 			}
-
+			console.log(text)
 			return text // Return the response text
 		} catch (error) {
 			if (
