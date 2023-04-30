@@ -41,7 +41,7 @@ const generateImage = async (prompt) => {
 	}
 }
 
-const handleSend = async (textInput, personalityIdx = 0, isRandom = false) => {
+const handleSend = async (textInput, personalityIdx = 0) => {
 	let retries = 0
 	let retryDelay = 500
 
