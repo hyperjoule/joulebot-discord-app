@@ -3,6 +3,9 @@ dotenv.config();
 const { Client, GatewayIntentBits, EmbedBuilder} = require('discord.js');
 const { handleSend, generateImage } = require('./chatbot_api');
 const client = new Client({intents: [GatewayIntentBits.Guilds]});
+const { personalityTitles } = require('./personalities');
+
+let selectedPersonalityIdx = 0;
 
 client.on('ready', async () => {
 	console.log(`Ready! Logged in as ${client.user.tag}`);
@@ -32,7 +35,20 @@ client.on('ready', async () => {
 					required: true
 				}
 			]
-		}
+		},
+		{
+			name: 'personality',
+			description: 'Select a personality for Joulebot',
+			options: [
+				{
+					name: 'choice',
+					type: 3, // STRING
+					description: 'Choose a personality',
+					required: true,
+					choices: personalityTitles.map(title => ({ name: title.label, value: title.value }))
+				}
+			]
+		}	
 	]);
 
 	console.log('Registered slash commands:', commands);
@@ -47,7 +63,7 @@ client.on('interactionCreate', async interaction => {
 		await interaction.deferReply();
 		const userInput = interaction.options.getString('question');
 		imageTitle = userInput;
-		const chatbotResponse = await handleSend(userInput);
+		const chatbotResponse = await handleSend(userInput, selectedPersonalityIdx);
 		await interaction.editReply(chatbotResponse);
 		break;
 	case 'draw':
@@ -63,6 +79,11 @@ client.on('interactionCreate', async interaction => {
 		} else {
 			await interaction.editReply("I'm sorry, but I'm having trouble generating an image right now. Please try again later.");
 		}
+		break;
+	case 'personality':
+		// Update the selected personality index based on user input
+		selectedPersonalityIdx = parseInt(interaction.options.getString('choice'));
+		await interaction.reply(`Personality set to: ${personalityTitles[selectedPersonalityIdx].label}`);
 		break;
 	}
 });
