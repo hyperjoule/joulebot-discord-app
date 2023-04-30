@@ -1,4 +1,5 @@
 const dotenv = require('dotenv');
+const { addUserToDatabase, addAllGuildMembersToDatabase } = require('./dbFunctions');
 dotenv.config();
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const client = new Client({
@@ -24,10 +25,17 @@ const { handleAskCommand,
 	handlePersonalityCommand, 
 	handleDirectMessage,
 	handleReply } = require('./commandHandlers');
-const { schedule_random_dm } = require('./random_dm');
+const { schedule_random_dm } = require('./helpers');
 
+// Client handlers
 client.on('ready', async () => {
 	console.log(`Ready! Logged in as ${client.user.tag}`);
+	const guild = client.guilds.cache.get(process.env.GUILD_ID);
+	if (guild) {
+		await addAllGuildMembersToDatabase(guild);
+	} else {
+		console.error('Guild not found. Please check your GUILD_ID.');
+	}
 	schedule_random_dm(client);
 	// Register slash commands
 	const commands = await client.guilds.cache.get(process.env.GUILD_ID)?.commands.set([
@@ -94,6 +102,10 @@ client.on('messageCreate', async (message) => {
 
 client.on('error', (error) => {
 	console.error('Discord client error:', error);
+});
+
+client.on('guildMemberAdd', async (member) => {
+	addUserToDatabase(member.user);
 });
 
 client.on('interactionCreate', async interaction => {

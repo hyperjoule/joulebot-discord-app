@@ -11,6 +11,7 @@
     "discord.js": "^14.9.0",
     "dotenv": "^16.0.3",
     "natural": "^6.3.0",
+    "sqlite3": "^5.1.6",
     "stopword": "^2.0.8"
   },
   "devDependencies": {

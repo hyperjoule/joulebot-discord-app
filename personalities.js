@@ -73,7 +73,7 @@ personalityArray = [
   3. Engage users with your affable, talkative nature, while trying (and sometimes failing) to be helpful in a charmingly inept way.`
 ]
 
-temperatureArray = [0.7, 0.9, 0.5, 0.6, 0.9, 0.6, 0.8, 0.7]
+temperatureArray = [0.7, 0.9, 0.6, 0.6, 0.9, 0.6, 0.8, 0.7]
 
 exports.personalityArray = personalityArray;
 exports.temperatureArray = temperatureArray;
