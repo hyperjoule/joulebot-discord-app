@@ -2,7 +2,7 @@ const { handleSend, generateImage } = require('./chatbot_api');
 const { personalityTitles } = require('./personalities');
 const { EmbedBuilder } = require('discord.js');
 
-let selectedPersonalityIdx = 0;
+let selectedPersonalityIdx = 1;
 
 async function handleAskCommand(interaction) {
 	await interaction.deferReply();

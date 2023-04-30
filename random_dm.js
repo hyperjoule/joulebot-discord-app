@@ -6,7 +6,7 @@ async function send_random_dm(guild) {
 		const fetchedMembers = await guild.members.fetch({ limit: 100, withPresences: true, time: 30000 });
 		const guildMembers = fetchedMembers.filter(member => !member.user.bot);
 		const random_member = guildMembers.random();
-		const question = `My name is ${random_member.displayName}. Compliment me in a fun and uniquely witty way.`;
+		const question = `My name is ${random_member.displayName}. Tell me an interesting story with emojis to brighten my day.`;
 		const chatbotResponse = await handleSend(question, selectedPersonalityIdx);
 		await random_member.send(chatbotResponse);
 		console.log(`Sent random message to ${random_member.displayName}`);

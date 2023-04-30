@@ -1,14 +1,26 @@
 // chatbot_api.js
-const dotenv = require('dotenv');
-dotenv.config();
-const axios = require('axios');
-const { personalityArray, temperatureArray } = require('./personalities');
+const dotenv = require('dotenv')
+dotenv.config()
+const axios = require('axios')
+const { personalityArray, temperatureArray } = require('./personalities')
+const natural = require('natural')
+const tokenizer = new natural.WordTokenizer()
+const sw = require('stopword')
 const API_KEY = process.env.API_KEY
 const MODEL = 'gpt-4' // change to whatever model you are using - see powershell script model_list.sh
 const MAX_TOKENS = 3000
 const MAX_HISTORY = 15 // I've played with this a bit but 10 seems to work well with the token limit 1500 for gpt-3.5-turbo
 const MAX_RETRIES = 3
 const conversationHistory = []
+
+const preprocessText = (text) => {
+	const lowerText = text.toLowerCase();
+	const cleanedText = lowerText.replace(/[^\w\s]|_/g, '')
+	const tokens = tokenizer.tokenize(cleanedText)
+	const stopwordFreeTokens = sw.removeStopwords(tokens)
+	const reducedText = stopwordFreeTokens.join(' ')
+	return reducedText
+}
 
 const generateImage = async (prompt) => {
 	try {
@@ -46,8 +58,10 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 	let retryDelay = 500
 
 	// Add the user's input message to the conversation history
-	conversationHistory.push({ role: 'user', content: textInput })
-	console.log(textInput)
+	const processedTextInput = preprocessText(textInput)
+	conversationHistory.push({ role: 'user', content: processedTextInput })
+	console.log('Question Raw text:' + textInput)
+	console.log('Question Processed: ' + processedTextInput)
 	// Limit the conversation history to the last MAX_HISTORY messages
 	if (conversationHistory.length > MAX_HISTORY) {
 		conversationHistory.shift()
@@ -83,13 +97,14 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 			)
 
 			const text = response.data.choices[0].message.content
-			conversationHistory.push({ role: 'assistant', content: text })
-
+			const processedAnswerTextInput = preprocessText(text)
+			conversationHistory.push({ role: 'assistant', content: processedAnswerTextInput })
+			console.log('Answer Raw text:' + text)
+			console.log('Answer Processed: ' + processedAnswerTextInput)
 			if (conversationHistory.length > MAX_HISTORY) {
 				conversationHistory.shift()
 			}
-			console.log(text)
-			return text // Return the response text
+			return text
 		} catch (error) {
 			if (
 				error?.response?.data?.error?.message?.includes('maximum context length is')
