@@ -1,6 +1,6 @@
 const { handleSend, generateImage } = require('../api')
 const { EmbedBuilder } = require('discord.js')
-const { getPersonalityIdxLbl } = require('../db/userQueries')
+const { getPersonalityIdxLbl, updatePersonalityId } = require('../db/userQueries')
 let selectedPersonalityIdx = 6
 
 async function fetchPersonalityTitles() {
@@ -39,12 +39,22 @@ async function handleDrawCommand(interaction) {
 }
 
 async function handlePersonalityCommand(interaction) {
-	selectedPersonalityIdx = parseInt(interaction.options.getString('choice'))
+	const discordId = interaction.member.user.id
+	const selectedPersonalityIdx = parseInt(interaction.options.getString('choice'))
 	const personalityTitles = await fetchPersonalityTitles()
-	const selectedPersonality = personalityTitles.find(p => p.value === interaction.options.getString('choice'))
-	await interaction.reply(`Personality set to: ${selectedPersonality.label}`)
-}
+	const selectedPersonality = personalityTitles.find(
+		(p) => p.value === interaction.options.getString('choice')
+	)
 
+	updatePersonalityId(discordId, selectedPersonalityIdx, (err) => {
+		if (err) {
+			console.error(`Error updating personality_id: ${err.message}`)
+			interaction.reply("There was an error updating your personality. Please try again later.")
+		} else {
+			interaction.reply(`Personality set to: ${selectedPersonality.label}`)
+		}
+	})
+}
 
 async function handleDirectMessage(message) { 
 	const userName = message.author.username

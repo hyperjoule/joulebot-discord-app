@@ -1,4 +1,4 @@
-// chatbot_api.js
+// api
 const dotenv = require('dotenv')
 dotenv.config()
 const axios = require('axios')
