@@ -47,10 +47,10 @@ async function scheduleRandomDm(client) {
 
 async function sendGreeting(user) {
 	try {
-		const question = `My name is ${user.displayName}. I'm new to the discord server!  Greet me and tell me about yourself!`
+		const question = `My name is ${user.username}. I'm new to the discord server!  Greet me and tell me about yourself!`
 		const chatbotResponse = await handleSend(question, selectedPersonalityIdx)
 		await user.send(chatbotResponse)
-		console.log(`Sent greeting to ${random_member.displayName}`)
+		console.log(`Sent greeting to ${user.username}`)
 	} catch (error) {
 		console.log(error)
 	}
