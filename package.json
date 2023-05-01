@@ -2,7 +2,7 @@
   "name": "joulebot-discord-app",
   "version": "2.0.0",
   "description": "",
-  "main": "bot.js",
+  "main": "index.js",
   "keywords": [],
   "author": "",
   "license": "ISC",

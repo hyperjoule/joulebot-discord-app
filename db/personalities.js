@@ -1,5 +1,5 @@
-const sqlite3 = require('sqlite3').verbose()
-const db = new sqlite3.Database('joulebot.db')
+// db/personalities.js
+const db = require('./index');
 
 db.serialize(() => {
 	db.run('CREATE TABLE personalities (id INTEGER PRIMARY KEY, label TEXT, content TEXT, temperature REAL)')

@@ -1,5 +1,5 @@
 const dotenv = require('dotenv');
-const { addUserToDatabase, addAllGuildMembersToDatabase } = require('./dbFunctions');
+const { addUserToDatabase, addAllGuildMembersToDatabase } = require('./utils/db_functions');
 dotenv.config();
 const { Client, GatewayIntentBits, Partials } = require('discord.js');
 const client = new Client({
@@ -24,7 +24,7 @@ const { handleAskCommand,
 	handleDrawCommand, 
 	handlePersonalityCommand, 
 	handleDirectMessage,
-	handleReply } = require('./commandHandlers');
+	handleReply } = require('./command_handlers');
 const { schedule_random_dm } = require('./helpers');
 
 // Client handlers

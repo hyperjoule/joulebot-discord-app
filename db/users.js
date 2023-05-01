@@ -1,5 +1,5 @@
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./joulebot.db');
+// db/users.js
+const db = require('./index');
 
 db.serialize(() => {
 	db.run(`CREATE TABLE IF NOT EXISTS users (
@@ -7,7 +7,5 @@ db.serialize(() => {
     discord_id TEXT UNIQUE,
     username TEXT,
     discriminator TEXT
-  )`);
-});
-
-module.exports = db;
+  )`)
+})

@@ -1,5 +1,5 @@
-const { handleSend } = require('./chatbot_api');
-const { selectedPersonalityIdx } = require('./commandHandlers');
+const { handleSend } = require('../api');
+const { selectedPersonalityIdx } = require('../command_handlers');
 
 async function send_random_dm(guild) {
 	try {

@@ -2,7 +2,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const axios = require('axios')
-const { personalityArray, temperatureArray } = require('./personalities')
+const { personalityArray, temperatureArray } = require('../personalities')
 const natural = require('natural')
 const tokenizer = new natural.WordTokenizer()
 const sw = require('stopword')

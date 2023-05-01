@@ -1,5 +1,5 @@
-const { handleSend, generateImage } = require('./chatbot_api');
-const { personalityTitles } = require('./personalities');
+const { handleSend, generateImage } = require('../api');
+const { personalityTitles } = require('../personalities');
 const { EmbedBuilder } = require('discord.js');
 
 let selectedPersonalityIdx = 1;

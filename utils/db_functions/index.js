@@ -1,4 +1,4 @@
-const db = require('./initJoulebot_db');
+const db = require('../../db');
 
 async function addAllGuildMembersToDatabase(guild) {
 	const members = await guild.members.fetch();
