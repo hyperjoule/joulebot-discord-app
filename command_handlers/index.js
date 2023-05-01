@@ -1,7 +1,7 @@
 const { handleSend, generateImage } = require('../api')
 const { EmbedBuilder } = require('discord.js')
 const { getPersonalityIdxLbl, updatePersonalityId } = require('../db/userQueries')
-let selectedPersonalityIdx = 6
+let selectedPersonalityIdx = 4
 
 async function fetchPersonalityTitles() {
 	return new Promise((resolve, reject) => {
@@ -40,7 +40,7 @@ async function handleDrawCommand(interaction) {
 
 async function handlePersonalityCommand(interaction) {
 	const discordId = interaction.member.user.id
-	const selectedPersonalityIdx = parseInt(interaction.options.getString('choice'))
+	selectedPersonalityIdx = parseInt(interaction.options.getString('choice'))
 	const personalityTitles = await fetchPersonalityTitles()
 	const selectedPersonality = personalityTitles.find(
 		(p) => p.value === interaction.options.getString('choice')
