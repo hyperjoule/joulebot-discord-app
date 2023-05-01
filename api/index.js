@@ -2,7 +2,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const axios = require('axios')
-const { personalityArray, temperatureArray } = require('../personalities')
+const { getPersonalityContent, getTemperatureValue } = require('../db/userQueries')
 const natural = require('natural')
 const tokenizer = new natural.WordTokenizer()
 const sw = require('stopword')
@@ -69,10 +69,28 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 
 	while (retries < MAX_RETRIES) {
 		try {
+			const personalityContent = await new Promise((resolve, reject) => {
+				getPersonalityContent(personalityIdx, (err, content) => {
+					if (err) {
+						reject(err)
+					} else {
+						resolve(content)
+					}
+				})
+			})
+			const temperature = await new Promise((resolve, reject) => {
+				getTemperatureValue(personalityIdx, (err, value) => {
+					if (err) {
+						reject(err)
+					} else {
+						resolve(value)
+					}
+				})
+			})
 			const messages = [
 				{
 					role: 'system',
-					content: personalityArray[personalityIdx]
+					content: personalityContent
 				},
 				...conversationHistory
 			]
@@ -86,7 +104,7 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 					presence_penalty: 1,
 					n: 1,
 					stop: null,
-					temperature: temperatureArray[0]
+					temperature: temperature
 				},
 				{
 					headers: {

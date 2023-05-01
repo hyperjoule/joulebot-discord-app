@@ -1,7 +1,9 @@
-const dotenv = require('dotenv');
-const { addUserToDatabase, addAllGuildMembersToDatabase } = require('./utils/db_functions');
-dotenv.config();
-const { Client, GatewayIntentBits, Partials } = require('discord.js');
+const dotenv = require('dotenv')
+const { addAllGuildMembersToDatabase } = require('./utils/db_functions')
+const { addUser } = require('./db/userQueries')
+const { setPersonalityChoices, scheduleRandomDm } = require('./helpers')
+dotenv.config()
+const { Client, GatewayIntentBits, Partials } = require('discord.js')
 const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
@@ -24,19 +26,18 @@ const { handleAskCommand,
 	handleDrawCommand, 
 	handlePersonalityCommand, 
 	handleDirectMessage,
-	handleReply } = require('./command_handlers');
-const { schedule_random_dm } = require('./helpers');
+	handleReply } = require('./command_handlers')
 
 // Client handlers
 client.on('ready', async () => {
-	console.log(`Ready! Logged in as ${client.user.tag}`);
-	const guild = client.guilds.cache.get(process.env.GUILD_ID);
+	console.log(`Ready! Logged in as ${client.user.tag}`)
+	const guild = client.guilds.cache.get(process.env.GUILD_ID)
 	if (guild) {
 		await addAllGuildMembersToDatabase(guild);
 	} else {
-		console.error('Guild not found. Please check your GUILD_ID.');
+		console.error('Guild not found. Please check your GUILD_ID.')
 	}
-	schedule_random_dm(client);
+	scheduleRandomDm(client);
 	// Register slash commands
 	const commands = await client.guilds.cache.get(process.env.GUILD_ID)?.commands.set([
 		{
@@ -72,12 +73,12 @@ client.on('ready', async () => {
 					type: 3, // STRING
 					description: 'Choose a personality',
 					required: true,
-					choices: personalityTitles.map(title => ({ name: title.label, value: title.value }))
+					choices: await setPersonalityChoices()
 				}
 			]
 		}
-	]);
-});
+	])
+})
 
 client.on('messageCreate', async (message) => {
 	// Ignore messages from bots
@@ -105,7 +106,7 @@ client.on('error', (error) => {
 });
 
 client.on('guildMemberAdd', async (member) => {
-	addUserToDatabase(member.user);
+	addUser(member.user);
 });
 
 client.on('interactionCreate', async interaction => {

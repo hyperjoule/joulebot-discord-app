@@ -1,5 +1,5 @@
 // db/personalities.js
-const db = require('./index');
+const db = require('./index')
 
 db.serialize(() => {
 	db.run('CREATE TABLE personalities (id INTEGER PRIMARY KEY, label TEXT, content TEXT, temperature REAL)')
