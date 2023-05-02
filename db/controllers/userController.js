@@ -1,13 +1,12 @@
 const User = require('../models/user')
 
-exports.addUser = (req, res) => {
-	const user = req.body.user
-	User.addUser(user, (err) => {
-		if (err) {
-			console.error(`Error inserting user: ${err.message}`)
-			return res.status(500).json({ error: err.message })
-		}
+exports.addUser = async (user) => {
+	try {
+		await User.addUser(user)
 		console.log(`User added: ${user.username}`)
-		res.status(201).json({ message: 'User added successfully' })
-	})
+		return { message: 'User added successfully' }
+	} catch (err) {
+		console.error(`Error inserting user: ${err.message}`)
+		throw err
+	}
 }

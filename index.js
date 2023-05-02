@@ -47,7 +47,7 @@ const startBot = async () => {
 		} else {
 			console.error('Guild not found. Please check your GUILD_ID.')
 		}
-		scheduleRandomDm(client)
+		// scheduleRandomDm(client)
 		// Register slash commands
 		const commands = await client.guilds.cache.get(process.env.GUILD_ID)?.commands.set([
 			{

@@ -1,6 +1,6 @@
 // helpers
 const { handleSend } = require('../api')
-const { getPersonalityIdxLbl } = require('../db/userQueries')
+const { getPersonalityIdxLbl } = require('../db/controllers/personalityController')
 const { selectedPersonalityIdx } = require('../command_handlers')
 
 async function setPersonalityChoices() {

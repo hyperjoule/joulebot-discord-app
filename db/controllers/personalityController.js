@@ -1,33 +1,40 @@
 const Personality = require('../models/personality')
 
-exports.getPersonalityContent = (req, res) => {
-	const index = req.params.index
-	Personality.getPersonalityContent(index, (err, content) => {
-		if (err) {
-			console.error(`Error fetching personality content: ${err.message}`)
-			return res.status(500).json({ error: err.message })
-		}
-		res.status(200).json({ content })
+exports.getPersonalityContent = (index) => {
+	return new Promise((resolve, reject) => {
+		Personality.getPersonalityContent(index, (err, content) => {
+			if (err) {
+				console.error(`Error fetching personality content: ${err.message}`)
+				reject(err)
+			} else {
+				resolve(content)
+			}
+		})
 	})
 }
 
-exports.getPersonalityIdxLbl = (req, res) => {
+exports.getPersonalityIdxLbl = (callback) => {
+	console.log('getPersonalityIdxLbl: start')
 	Personality.getPersonalityIdxLbl((err, rows) => {
 		if (err) {
-			console.error(`Error fetching personalities: ${err.message}`)
-			return res.status(500).json({ error: err.message })
+			console.error('getPersonalityIdxLbl: error', err.message)
+			callback(err, null)
+		} else {
+			console.log('getPersonalityIdxLbl: success')
+			callback(null, rows)
 		}
-		res.status(200).json({ personalities: rows })
 	})
 }
 
-exports.getTemperatureValue = (req, res) => {
-	const index = req.params.index
-	Personality.getTemperatureValue(index, (err, temperature) => {
-		if (err) {
-			console.error(`Error fetching temperature: ${err.message}`)
-			return res.status(500).json({ error: err.message })
-		}
-		res.status(200).json({ temperature })
+exports.getTemperatureValue = (index) => {
+	return new Promise((resolve, reject) => {
+		Personality.getTemperatureValue(index, (err, temperature) => {
+			if (err) {
+				console.error(`Error fetching temperature: ${err.message}`)
+				reject(err)
+			} else {
+				resolve(temperature)
+			}
+		})
 	})
 }

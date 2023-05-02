@@ -1,33 +1,34 @@
 const db = require('../../db')
 const UserSetting = require('../models/userSetting')
 
-exports.addSetting = (req, res) => {
-	const user = req.body.user
-	UserSetting.addSetting(user, (err) => {
-		if (err) {
-			console.error(`Error inserting user setting: ${err.message}`)
-			return res.status(500).json({ error: err.message })
-		}
+exports.addSetting = async (user) => {
+	try {
+		await UserSetting.addSetting(user)
 		console.log(`User setting added: ${user.username}`)
-		res.status(201).json({ message: 'User setting added successfully' })
-	})
+		return { message: 'User setting added successfully' }
+	} catch (err) {
+		console.error(`Error inserting user setting: ${err.message}`)
+		throw err
+	}
 }
 
-exports.prepopulateUserSettings = () => {
+exports.prepopulateUserSettings = async () => {
 	console.log('user settings')
-	db.all('SELECT discord_id FROM users', (err, rows) => {
-		if (err) {
-			console.error(err)
-			return
-		}
-
-		rows.forEach(row => {
-			db.run(`INSERT OR IGNORE INTO user_settings (discord_id, personality_id) VALUES (?, 0)`, [row.discord_id], (err) => {
+	try {
+		const rows = await new Promise((resolve, reject) => {
+			db.all('SELECT discord_id FROM users', (err, rows) => {
 				if (err) {
-					console.error(err)
-					return
+					reject(err)
+				} else {
+					resolve(rows)
 				}
 			})
 		})
-	})
+
+		for (const row of rows) {
+			await UserSetting.addSetting({ id: row.discord_id })
+		}
+	} catch (err) {
+		console.error(err)
+	}
 }

@@ -1,14 +1,18 @@
 const { handleSend, generateImage } = require('../api')
 const { EmbedBuilder } = require('discord.js')
-const { getPersonalityIdxLbl, updatePersonalityId } = require('../db/userQueries')
+const { getPersonalityIdxLbl } = require('../db/controllers/personalityController')
+const { updatePersonalityId } = require('../db/models/userSetting')
 let selectedPersonalityIdx = 11
 
 async function fetchPersonalityTitles() {
+	console.log('fetchPersonalityTitles: start')
 	return new Promise((resolve, reject) => {
 		getPersonalityIdxLbl((err, rows) => {
 			if (err) {
+				console.error('fetchPersonalityTitles: error', err)
 				reject(err)
 			} else {
+				console.log('fetchPersonalityTitles: success')
 				resolve(rows.map(row => ({ label: row.label, value: row.id.toString() })))
 			}
 		})
@@ -31,7 +35,7 @@ async function handleDrawCommand(interaction) {
 		const imageEmbed = new EmbedBuilder()
 			.setColor('#0099ff')
 			.setTitle(`**${userName} requested:** ${imageDescription}`)
-			.setImage(imageUrl);
+			.setImage(imageUrl)
 		await interaction.editReply({ embeds: [imageEmbed] })
 	} else {
 		await interaction.editReply("I'm sorry, but I'm having trouble generating an image right now. Please try again later.")
@@ -39,21 +43,29 @@ async function handleDrawCommand(interaction) {
 }
 
 async function handlePersonalityCommand(interaction) {
-	const discordId = interaction.member.user.id
-	selectedPersonalityIdx = parseInt(interaction.options.getString('choice'))
-	const personalityTitles = await fetchPersonalityTitles()
-	const selectedPersonality = personalityTitles.find(
-		(p) => p.value === interaction.options.getString('choice')
-	)
+	console.log('handlePersonalityCommand: start')
+	await interaction.deferReply() // Add this line
 
-	updatePersonalityId(discordId, selectedPersonalityIdx, (err) => {
-		if (err) {
-			console.error(`Error updating personality_id: ${err.message}`)
-			interaction.reply("There was an error updating your personality. Please try again later.")
-		} else {
-			interaction.reply(`Personality set to: ${selectedPersonality.label}`)
-		}
-	})
+	const discordId = interaction.member.user.id
+	selectedPersonalityIdx = parseInt(interaction.options.getString("choice"))
+	console.log(`Selected personality index: ${selectedPersonalityIdx}`)
+
+	const personalityTitles = await fetchPersonalityTitles()
+	console.log('handlePersonalityCommand: fetched personality titles')
+	const selectedPersonality = personalityTitles.find(
+		(p) => p.value === interaction.options.getString("choice")
+	)
+	console.log(`Selected personality: ${JSON.stringify(selectedPersonality)}`)
+
+	try {
+		console.log('handlePersonalityCommand: updating personality')
+		await updatePersonalityId(discordId, selectedPersonalityIdx)
+		console.log('handlePersonalityCommand: updated personality')
+		await interaction.editReply(`Personality set to: ${selectedPersonality.label}`)
+	} catch (err) {
+		console.error(`Error updating personality_id: ${err.message}`)
+		await interaction.editReply("There was an error updating your personality. Please try again later.")
+	}
 }
 
 async function handleDirectMessage(message) { 
@@ -77,4 +89,4 @@ module.exports = {
 	handleDirectMessage,
 	handleReply,
 	selectedPersonalityIdx
-};
+}
