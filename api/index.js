@@ -2,7 +2,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const axios = require('axios')
-const { getPersonalityContent, getTemperatureValue } = require('../db/controllers/personalityController')
+const { getContentValue, getTemperatureValue, getLabelValue } = require('../db/controllers/personalityController')
 const natural = require('natural')
 const tokenizer = new natural.WordTokenizer()
 const sw = require('stopword')
@@ -69,8 +69,10 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 
 	while (retries < MAX_RETRIES) {
 		try {
-			const personalityContent = await getPersonalityContent(personalityIdx)
-			const temperature = await getTemperatureValue(personalityIdx)			
+			const personalityContent = await getContentValue(personalityIdx)
+			const temperature = await getTemperatureValue(personalityIdx)	
+			const personalityLabel = await getLabelValue(personalityIdx)
+  		
 			const messages = [
 				{
 					role: 'system',
@@ -106,7 +108,8 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 			if (conversationHistory.length > MAX_HISTORY) {
 				conversationHistory.shift()
 			}
-			return text
+			const formattedResponse = `**${personalityLabel}**\n${text}`
+			return formattedResponse
 		} catch (error) {
 			if (
 				error?.response?.data?.error?.message?.includes('maximum context length is')

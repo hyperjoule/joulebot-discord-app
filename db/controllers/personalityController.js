@@ -1,14 +1,27 @@
 const Personality = require('../models/personality')
 const db = require('../../db')
 
-exports.getPersonalityContent = (index) => {
+exports.getContentValue = (index) => {
 	return new Promise((resolve, reject) => {
-		Personality.getPersonalityContent(index, (err, content) => {
+		Personality.getContentValue(index, (err, content) => {
 			if (err) {
 				console.error(`Error fetching personality content: ${err.message}`)
 				reject(err)
 			} else {
 				resolve(content)
+			}
+		})
+	})
+}
+
+exports.getLabelValue = (index) => {
+	return new Promise((resolve, reject) => {
+		Personality.getLabelValue(index, (err, label) => {
+			if (err) {
+				console.error(`Error fetching personality content: ${err.message}`)
+				reject(err)
+			} else {
+				resolve(label)
 			}
 		})
 	})

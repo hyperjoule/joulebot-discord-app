@@ -18,6 +18,7 @@ async function fetchPersonalityTitles() {
 		})
 	})
 }
+
 async function handleAskCommand(interaction) {
 	await interaction.deferReply()
 	const userName = interaction.member.displayName
@@ -44,8 +45,8 @@ async function handleDrawCommand(interaction) {
 
 async function handlePersonalityCommand(interaction) {
 	console.log('handlePersonalityCommand: start')
-	await interaction.deferReply() // Add this line
-
+	await interaction.deferReply() 
+	
 	const discordId = interaction.member.user.id
 	selectedPersonalityIdx = parseInt(interaction.options.getString("choice"))
 	console.log(`Selected personality index: ${selectedPersonalityIdx}`)
@@ -71,14 +72,24 @@ async function handlePersonalityCommand(interaction) {
 async function handleDirectMessage(message) { 
 	const userName = message.author.username
 	const userInput = message.content
+	// Start a loop to repeatedly send the typing indicator.
+	const typingInterval = setInterval(() => {
+		message.channel.sendTyping()
+	}, 2000) // Repeat every 2 seconds.
 	const chatbotResponse = await handleSend(userName + ' asks: ' + userInput, selectedPersonalityIdx)
+	clearInterval(typingInterval)
 	await message.reply(chatbotResponse)
 }
 
 async function handleReply(message) { 
 	const userName = message.author.username
 	const userInput = message.content
+	// Start a loop to repeatedly send the typing indicator.
+	const typingInterval = setInterval(() => {
+		message.channel.sendTyping()
+	}, 2000) // Repeat every 2 seconds.
 	const chatbotResponse = await handleSend(userName + ' responds: ' + userInput, selectedPersonalityIdx)
+	clearInterval(typingInterval)
 	await message.reply(chatbotResponse)
 }
 
