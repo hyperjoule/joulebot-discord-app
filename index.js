@@ -4,7 +4,8 @@ dotenv.config()
 
 const initDb = require('./db/init_db')
 const { addAllGuildMembersToDatabase } = require('./utils/db_functions')
-const { addUser, prepopulateUserSettings } = require('./db/userQueries')
+const { addUser } = require('./db/controllers/userController.js')
+const { prepopulateUserSettings } = require('./db/controllers/userSettingController.js')
 const { setPersonalityChoices, scheduleRandomDm, sendGreeting } = require('./helpers')
 
 const { Client, GatewayIntentBits, Partials } = require('discord.js')
@@ -128,7 +129,7 @@ const startBot = async () => {
 			await handleAskCommand(interaction)
 			break   
 		case 'draw':
-			await handleDrawCommand(interaction);
+			await handleDrawCommand(interaction)
 			break
 		case 'personality':
 			await handlePersonalityCommand(interaction)

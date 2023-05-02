@@ -2,7 +2,7 @@
 const db = require('./index.js')
 
 function addUser(user) {
-	const stmt = db.prepare(`INSERT OR IGNORE INTO users (discord_id, username, discriminator) VALUES (?, ?, ?)`);
+	const stmt = db.prepare(`INSERT OR IGNORE INTO users (discord_id, username, discriminator) VALUES (?, ?, ?)`)
 	stmt.run(user.id, user.username, user.discriminator, (err) => {
 		if (err) {
 			console.error(`Error inserting user: ${err.message}`)
@@ -14,7 +14,7 @@ function addUser(user) {
 }
 
 function addSettings(user) {
-	const stmt = db.prepare(`INSERT OR IGNORE INTO user_settings (discord_id, personality_id) VALUES (?, 0)`);
+	const stmt = db.prepare(`INSERT OR IGNORE INTO user_settings (discord_id, personality_id) VALUES (?, 0)`)
 	stmt.run(user.id, (err) => {
 		if (err) {
 			console.error(`Error inserting user: ${err.message}`)
@@ -50,7 +50,7 @@ function getPersonalityIdxLbl(callback) {
 }
 
 function updatePersonalityId(discordId, personalityIdx, callback) {
-	const query = `UPDATE user_settings SET personality_id = ? WHERE discord_id = ?`;
+	const query = `UPDATE user_settings SET personality_id = ? WHERE discord_id = ?`
 	db.run(query, [personalityIdx, discordId], (err) => {
 		if (err) {
 			console.error(`Error updating personality_id: ${err.message}`)

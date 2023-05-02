@@ -1,7 +1,7 @@
 const { handleSend, generateImage } = require('../api')
 const { EmbedBuilder } = require('discord.js')
 const { getPersonalityIdxLbl, updatePersonalityId } = require('../db/userQueries')
-let selectedPersonalityIdx = 4
+let selectedPersonalityIdx = 11
 
 async function fetchPersonalityTitles() {
 	return new Promise((resolve, reject) => {
