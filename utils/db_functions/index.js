@@ -1,5 +1,5 @@
 // utils/dbFunctions
-const { addUser } = require('../../db/userQueries')
+const { addUser } = require('../../db/controllers/userController')
 
 async function addAllGuildMembersToDatabase(guild) {
 	const members = await guild.members.fetch()

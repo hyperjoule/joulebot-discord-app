@@ -2,7 +2,7 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const axios = require('axios')
-const { getPersonalityContent, getTemperatureValue } = require('../db/userQueries')
+const { getPersonalityContent, getTemperatureValue } = require('../db/controllers/personalityController')
 const natural = require('natural')
 const tokenizer = new natural.WordTokenizer()
 const sw = require('stopword')
@@ -14,7 +14,7 @@ const MAX_RETRIES = 3
 const conversationHistory = []
 
 const preprocessText = (text) => {
-	const lowerText = text.toLowerCase();
+	const lowerText = text.toLowerCase()
 	const cleanedText = lowerText.replace(/[^\w\s]|_/g, '')
 	const tokens = tokenizer.tokenize(cleanedText)
 	const stopwordFreeTokens = sw.removeStopwords(tokens)
@@ -69,24 +69,8 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 
 	while (retries < MAX_RETRIES) {
 		try {
-			const personalityContent = await new Promise((resolve, reject) => {
-				getPersonalityContent(personalityIdx, (err, content) => {
-					if (err) {
-						reject(err)
-					} else {
-						resolve(content)
-					}
-				})
-			})
-			const temperature = await new Promise((resolve, reject) => {
-				getTemperatureValue(personalityIdx, (err, value) => {
-					if (err) {
-						reject(err)
-					} else {
-						resolve(value)
-					}
-				})
-			})
+			const personalityContent = await getPersonalityContent(personalityIdx)
+			const temperature = await getTemperatureValue(personalityIdx)			
 			const messages = [
 				{
 					role: 'system',
@@ -151,5 +135,5 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 	// If all retries failed, return an error message
 	return "I'm sorry, but I'm having trouble connecting right now. Please try again later."
 }
-exports.handleSend = handleSend;
-exports.generateImage = generateImage;
+exports.handleSend = handleSend
+exports.generateImage = generateImage

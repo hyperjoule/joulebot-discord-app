@@ -1,4 +1,5 @@
 const Personality = require('../models/personality')
+const db = require('../../db')
 
 exports.getPersonalityContent = (index) => {
 	return new Promise((resolve, reject) => {
@@ -13,28 +14,27 @@ exports.getPersonalityContent = (index) => {
 	})
 }
 
-exports.getPersonalityIdxLbl = (callback) => {
-	console.log('getPersonalityIdxLbl: start')
-	Personality.getPersonalityIdxLbl((err, rows) => {
-		if (err) {
-			console.error('getPersonalityIdxLbl: error', err.message)
-			callback(err, null)
-		} else {
-			console.log('getPersonalityIdxLbl: success')
-			callback(null, rows)
-		}
+exports.getTemperatureValue = (index) => {
+	return new Promise((resolve, reject) => {
+		Personality.getTemperatureValue(index, (err, value) => {
+			if (err) {
+				console.error(`Error fetching temperature value: ${err.message}`)
+				reject(err)
+			} else {
+				resolve(value)
+			}
+		})
 	})
 }
 
-exports.getTemperatureValue = (index) => {
-	return new Promise((resolve, reject) => {
-		Personality.getTemperatureValue(index, (err, temperature) => {
-			if (err) {
-				console.error(`Error fetching temperature: ${err.message}`)
-				reject(err)
-			} else {
-				resolve(temperature)
-			}
-		})
+exports.getPersonalityIdxLbl = (callback) => {
+	const query = `SELECT id, label FROM personalities`
+	db.all(query, [], (err, rows) => {
+		if (err) {
+			console.error(`Error fetching personalities: ${err.message}`)
+			callback(err, null)
+		} else {
+			callback(null, rows)
+		}
 	})
 }
