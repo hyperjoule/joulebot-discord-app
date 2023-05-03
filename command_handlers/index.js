@@ -1,8 +1,8 @@
 const { handleSend, generateImage } = require('../api')
 const { EmbedBuilder } = require('discord.js')
 const { getPersonalityIdxLbl } = require('../db/controllers/personalityController')
-const { updatePersonalityId } = require('../db/models/userSetting')
-let selectedPersonalityIdx = 11
+const { updatePersonalityId, getPersonalityIdByDiscordId } = require('../db/controllers/userSettingController')
+let selectedPersonalityIdx = 0
 
 async function fetchPersonalityTitles() {
 	console.log('fetchPersonalityTitles: start')
@@ -21,6 +21,7 @@ async function fetchPersonalityTitles() {
 
 async function handleAskCommand(interaction) {
 	await interaction.deferReply()
+	selectedPersonalityIdx = await getPersonalityIdByDiscordId(interaction.user.id)
 	const userName = interaction.member.displayName
 	const userInput = interaction.options.getString('question')
 	const chatbotResponse = await handleSend(userInput, selectedPersonalityIdx, interaction.user.id)
@@ -44,24 +45,15 @@ async function handleDrawCommand(interaction) {
 }
 
 async function handlePersonalityCommand(interaction) {
-	console.log('handlePersonalityCommand: start')
 	await interaction.deferReply() 
-	
 	const discordId = interaction.member.user.id
 	selectedPersonalityIdx = parseInt(interaction.options.getString("choice"))
-	console.log(`Selected personality index: ${selectedPersonalityIdx}`)
-
 	const personalityTitles = await fetchPersonalityTitles()
-	console.log('handlePersonalityCommand: fetched personality titles')
 	const selectedPersonality = personalityTitles.find(
 		(p) => p.value === interaction.options.getString("choice")
 	)
-	console.log(`Selected personality: ${JSON.stringify(selectedPersonality)}`)
-
 	try {
-		console.log('handlePersonalityCommand: updating personality')
 		await updatePersonalityId(discordId, selectedPersonalityIdx)
-		console.log('handlePersonalityCommand: updated personality')
 		await interaction.editReply(`Personality set to: ${selectedPersonality.label}`)
 	} catch (err) {
 		console.error(`Error updating personality_id: ${err.message}`)
@@ -69,26 +61,15 @@ async function handlePersonalityCommand(interaction) {
 	}
 }
 
-async function handleDirectMessage(message) { 
+async function handleReply(message, txtString = ' says: ') { 
 	const userName = message.author.username
 	const userInput = message.content
+	selectedPersonalityIdx = await getPersonalityIdByDiscordId(message.author.id)
 	// Start a loop to repeatedly send the typing indicator.
 	const typingInterval = setInterval(() => {
 		message.channel.sendTyping()
 	}, 2000) // Repeat every 2 seconds.
-	const chatbotResponse = await handleSend(userName + ' asks: ' + userInput, selectedPersonalityIdx, message.author.id)
-	clearInterval(typingInterval)
-	await message.reply(chatbotResponse)
-}
-
-async function handleReply(message) { 
-	const userName = message.author.username
-	const userInput = message.content
-	// Start a loop to repeatedly send the typing indicator.
-	const typingInterval = setInterval(() => {
-		message.channel.sendTyping()
-	}, 2000) // Repeat every 2 seconds.
-	const chatbotResponse = await handleSend(userName + ' responds: ' + userInput, selectedPersonalityIdx, message.author.id)
+	const chatbotResponse = await handleSend(userName + txtString + userInput, selectedPersonalityIdx, message.author.id)
 	clearInterval(typingInterval)
 	await message.reply(chatbotResponse)
 }
@@ -97,7 +78,5 @@ module.exports = {
 	handleAskCommand,
 	handleDrawCommand,
 	handlePersonalityCommand,
-	handleDirectMessage,
-	handleReply,
-	selectedPersonalityIdx
+	handleReply
 }

@@ -27,6 +27,19 @@ class UserSetting {
 			})
 		})
 	}
+
+	static getPersonalityIdByDiscordId(discord_id) {
+		return new Promise((resolve, reject) => {
+			const stmt = db.prepare('SELECT personality_id FROM user_settings WHERE discord_id = ?')
+			stmt.get(discord_id, (err, result) => {
+				if (err) {
+					reject(err)
+				} else {
+					resolve(result ? result.personality_id : null)
+				}
+			})
+		})
+	}
 }
 
 module.exports = UserSetting

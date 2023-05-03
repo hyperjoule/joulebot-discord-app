@@ -30,7 +30,7 @@ const handleSend = async (textInput, personalityIdx = 0, discordId) => {
 	// Add the user's input message to the conversation history
 	const processedTextInput = preprocessText(textInput)
 	conversationHistory.push({ role: 'user', content: processedTextInput })
-	console.log('Question Raw text:' + textInput)
+	console.log('Question:' + textInput)
 	// Limit the conversation history to the last MAX_HISTORY messages
 	if (conversationHistory.length > MAX_HISTORY) {
 		conversationHistory.shift()
@@ -93,7 +93,7 @@ const handleSend = async (textInput, personalityIdx = 0, discordId) => {
 				console.error('Error inserting chat log data:', err)
 			}			
 			conversationHistory.push({ role: 'assistant', content: processedAnswerTextInput })
-			console.log('Answer Raw text:' + text)
+			console.log('Answer:' + text)
 			if (conversationHistory.length > MAX_HISTORY) {
 				conversationHistory.shift()
 			}
@@ -146,8 +146,6 @@ const generateImage = async (prompt, discordId) => {
 				}
 			}
 		)
-		// Log the response as JSON
-		console.log(JSON.stringify(response.data, null, 2))
 
 		if (response.status === 200) {
 			return response.data.data[0].url

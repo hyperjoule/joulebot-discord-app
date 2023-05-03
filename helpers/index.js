@@ -1,7 +1,7 @@
 // helpers
 const { handleSend } = require('../api')
-const { getPersonalityIdxLbl } = require('../db/controllers/personalityController')
-const { selectedPersonalityIdx } = require('../command_handlers')
+const { getPersonalityIdxLbl, getRandomPersonalityIndex } = require('../db/controllers/personalityController')
+let selectedPersonalityIdx = 0 // for random messages
 
 async function setPersonalityChoices() {
 	const personalities = await new Promise((resolve, reject) => {
@@ -19,13 +19,15 @@ async function setPersonalityChoices() {
 		value: personality.id.toString()
 	}))
 }
+
 async function sendRandomDm(guild) {
 	try {
 		const fetchedMembers = await guild.members.fetch({ limit: 100, withPresences: true, time: 30000 })
 		const guildMembers = fetchedMembers.filter(member => !member.user.bot)
 		const random_member = guildMembers.random()
-		const question = `My name is ${random_member.displayName}. Tell me my fortune.`
-		const chatbotResponse = await handleSend(question, selectedPersonalityIdx)
+		const question = `My name is ${random_member.displayName}. Enthusiastically compliment me and give me some random advice.`
+		selectedPersonalityIdx = await getRandomPersonalityIndex()
+		const chatbotResponse = await handleSend(question, selectedPersonalityIdx, random_member.user.id)
 		await random_member.send(chatbotResponse)
 		console.log(`Sent random message to ${random_member.displayName}`)
 	} catch (error) {
@@ -48,6 +50,7 @@ async function scheduleRandomDm(client) {
 async function sendGreeting(user) {
 	try {
 		const question = `My name is ${user.username}. I'm new to the discord server!  Greet me and tell me about yourself!`
+		selectedPersonalityIdx = await getRandomPersonalityIndex()
 		const chatbotResponse = await handleSend(question, selectedPersonalityIdx)
 		await user.send(chatbotResponse)
 		console.log(`Sent greeting to ${user.username}`)

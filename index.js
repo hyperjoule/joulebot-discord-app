@@ -32,7 +32,6 @@ const client = new Client({
 const { handleAskCommand, 
 	handleDrawCommand, 
 	handlePersonalityCommand, 
-	handleDirectMessage,
 	handleReply } = require('./command_handlers')
 
 const startBot = async () => {
@@ -47,7 +46,7 @@ const startBot = async () => {
 		} else {
 			console.error('Guild not found. Please check your GUILD_ID.')
 		}
-		// scheduleRandomDm(client)
+		scheduleRandomDm(client)
 		// Register slash commands
 		const commands = await client.guilds.cache.get(process.env.GUILD_ID)?.commands.set([
 			{
@@ -96,16 +95,16 @@ const startBot = async () => {
 
 		// Check if the message is a direct message or a reply
 		if (message.channel.type === 1) {
-			await handleDirectMessage(message)
+			await handleReply(message, ' asks: ')
 		} else if (message.reference?.messageId) {
 			await handleReply(message)
 		} else {
 			const botUsernamePrefix = client.user.username.substring(0, 8).toLowerCase()
 			const messageContentLower = message.content.toLowerCase()
 			if (messageContentLower.includes(botUsernamePrefix)) {
-				await handleDirectMessage(message)
+				await handleReply(message, ' asks: ')
 			}	else if (message.mentions.users.has(client.user.id)) {
-				await handleDirectMessage(message)
+				await handleReply(message, ' asks: ')
 			}
 		}
 	})

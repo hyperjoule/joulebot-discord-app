@@ -12,6 +12,28 @@ exports.addSetting = async (user) => {
 	}
 }
 
+exports.getPersonalityIdByDiscordId = async (discord_id) => {
+	try {
+		const personalityId = await UserSetting.getPersonalityIdByDiscordId(discord_id)
+		console.log(`Personality ID retrieved for discord_id: ${discord_id} - Personality ID: ${personalityId}`)
+		return personalityId
+	} catch (err) {
+		console.error(`Error retrieving personality ID: ${err.message}`)
+		throw err
+	}
+}
+
+exports.updatePersonalityId = async (discord_id, personalityId) => {
+	try {
+		await UserSetting.updatePersonalityId(discord_id, personalityId)
+		console.log(`User personality updated: ${discord_id} - Personality ID: ${personalityId}`)
+		return { message: 'User personality updated successfully' }
+	} catch (err) {
+		console.error(`Error updating user personality: ${err.message}`)
+		throw err
+	}
+}
+
 exports.prepopulateUserSettings = async () => {
 	console.log('user settings')
 	try {

@@ -40,6 +40,27 @@ exports.getTemperatureValue = (index) => {
 	})
 }
 
+exports.getRandomPersonalityIndex = async () => {
+	try {
+		const numRows = await new Promise((resolve, reject) => {
+			const query = 'SELECT COUNT(*) AS count FROM personalities'
+			db.get(query, (err, row) => {
+				if (err) {
+					reject(err)
+				} else {
+					resolve(row.count)
+				}
+			})
+		})
+
+		const randomIndex = Math.floor(Math.random() * numRows)
+		return randomIndex
+	} catch (err) {
+		console.error(`Error fetching random personality index: ${err.message}`)
+		throw err
+	}
+}
+
 exports.getPersonalityIdxLbl = (callback) => {
 	const query = `SELECT id, label FROM personalities`
 	db.all(query, [], (err, rows) => {
