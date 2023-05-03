@@ -9,8 +9,8 @@ const tokenizer = new natural.WordTokenizer()
 const sw = require('stopword')
 const API_KEY = process.env.API_KEY
 const MODEL = 'gpt-4' // change to whatever model you are using - see powershell script model_list.sh
-const MAX_TOKENS = 3000
-const MAX_HISTORY = 15 // I've played with this a bit but 10 seems to work well with the token limit 1500 for gpt-3.5-turbo
+const MAX_TOKENS = 1500
+const MAX_HISTORY = 10 // I've played with this a bit but 10 seems to work well with the token limit 1500 for gpt-3.5-turbo
 const MAX_RETRIES = 3
 const conversationHistory = []
 
