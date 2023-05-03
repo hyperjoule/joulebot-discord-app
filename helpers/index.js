@@ -30,7 +30,7 @@ async function sendRandomDm(guild) {
 		const fetchedMembers = await guild.members.fetch({ limit: 100, withPresences: true, time: 30000 })
 		const guildMembers = fetchedMembers.filter(member => !member.user.bot)
 		const random_member = guildMembers.random()
-		const question = `${random_member.displayName} asks: ${getRandomPrompt()}`
+		const question = `Hi Joulebot!  I am ${random_member.displayName}. Greet me and comment on this conversation starter: ${getRandomPrompt()}`
 		selectedPersonalityIdx = await getRandomPersonalityIndex()
 		const chatbotResponse = await handleSend(question, selectedPersonalityIdx, random_member.user.id)
 		await random_member.send(chatbotResponse)
