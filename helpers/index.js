@@ -1,6 +1,11 @@
 // helpers
 const { handleSend } = require('../api')
 const { getPersonalityIdxLbl, getRandomPersonalityIndex } = require('../db/controllers/personalityController')
+const randomPrompts = require('./random_prompts.json')
+const getRandomPrompt = () => {
+	const randomIndex = Math.floor(Math.random() * randomPrompts.length)
+	return randomPrompts[randomIndex]
+}
 let selectedPersonalityIdx = 0 // for random messages
 
 async function setPersonalityChoices() {
@@ -25,7 +30,7 @@ async function sendRandomDm(guild) {
 		const fetchedMembers = await guild.members.fetch({ limit: 100, withPresences: true, time: 30000 })
 		const guildMembers = fetchedMembers.filter(member => !member.user.bot)
 		const random_member = guildMembers.random()
-		const question = `My name is ${random_member.displayName}. Enthusiastically compliment me and give me some random advice.`
+		const question = `${random_member.displayName} asks: ${getRandomPrompt()}`
 		selectedPersonalityIdx = await getRandomPersonalityIndex()
 		const chatbotResponse = await handleSend(question, selectedPersonalityIdx, random_member.user.id)
 		await random_member.send(chatbotResponse)
