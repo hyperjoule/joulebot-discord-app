@@ -114,8 +114,9 @@ const startBot = async () => {
 	})
 
 	client.on('guildMemberAdd', async (member) => {
-		addUser(member.user)
-		sendGreeting(member.user)
+		console.log('Guild member add triggered')
+		await addUser(member.user)
+		await sendGreeting(member.user)
 	})
 
 	client.on('interactionCreate', async interaction => {
@@ -133,7 +134,7 @@ const startBot = async () => {
 			await handlePersonalityCommand(interaction)
 			break
 		}
-		
+
 	})
 					
 	client.login(process.env.BOT_TOKEN)
