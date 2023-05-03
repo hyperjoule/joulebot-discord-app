@@ -27,9 +27,16 @@ const handleSend = async (textInput, personalityIdx = 0, discordId) => {
 	let retries = 0
 	let retryDelay = 500
 
+	// Fetch the last MAX_HISTORY-1 number of responses from the database for the specific user
+	const lastConversations = await chatLogController.getLastConversations(discordId, MAX_HISTORY-1)
+	// Populate the conversation history
+	conversationHistory.length = 0 // Clear the current conversation history
+	lastConversations.forEach((conv) => {
+		conversationHistory.push({ role: 'user', content: preprocessText(conv.initial_question) })
+		conversationHistory.push({ role: 'assistant', content: preprocessText(conv.answer) })
+	})
 	// Add the user's input message to the conversation history
-	const processedTextInput = preprocessText(textInput)
-	conversationHistory.push({ role: 'user', content: processedTextInput })
+	conversationHistory.push({ role: 'user', content: textInput })
 	console.log('Question:' + textInput)
 	// Limit the conversation history to the last MAX_HISTORY messages
 	if (conversationHistory.length > MAX_HISTORY) {
@@ -73,7 +80,8 @@ const handleSend = async (textInput, personalityIdx = 0, discordId) => {
 			const completionTokens = response.data.usage.completion_tokens
 			const totalTokens = response.data.usage.total_tokens
 			const text = response.data.choices[0].message.content
-			const processedAnswerTextInput = preprocessText(text)
+			console.log('Answer:' + text)
+
 			// Prepare data for insertion into the database
 			const dataToInsert = {
 				discord_id: discordId, 
@@ -85,20 +93,18 @@ const handleSend = async (textInput, personalityIdx = 0, discordId) => {
 				personality_id: personalityIdx,
 				temperature: temperature
 			}
+
 			try {
 				// Insert the chat log data into the database
 				await chatLogController.addChatLog(dataToInsert)
 				console.log('Chat log data inserted successfully')
 			} catch (err) {
 				console.error('Error inserting chat log data:', err)
-			}			
-			conversationHistory.push({ role: 'assistant', content: processedAnswerTextInput })
-			console.log('Answer:' + text)
-			if (conversationHistory.length > MAX_HISTORY) {
-				conversationHistory.shift()
-			}
+			}	
+
 			const formattedResponse = `**${personalityLabel}**\n${text}`
 			return formattedResponse
+			
 		} catch (error) {
 			if (
 				error?.response?.data?.error?.message?.includes('maximum context length is')

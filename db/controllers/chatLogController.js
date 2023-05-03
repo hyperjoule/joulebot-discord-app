@@ -12,3 +12,13 @@ exports.addChatLog = async (chatLog) => {
 		throw err
 	}
 }
+
+exports.getLastConversations = async (discordId, limit) => {
+	try {
+		const conversations = await ChatLog.getLastConversations(discordId, limit)
+		return conversations
+	} catch (err) {
+		console.error(`Error fetching last conversations: ${err.message}`)
+		throw err
+	}
+}

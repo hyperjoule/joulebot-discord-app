@@ -25,6 +25,19 @@ class ChatLog {
 			stmt.finalize()
 		})
 	}
+
+	static getLastConversations(discordId, limit) {
+		return new Promise((resolve, reject) => {
+			const query = `SELECT * FROM chat_logs WHERE discord_id = ? ORDER BY id DESC LIMIT ?`
+			db.all(query, [discordId, limit], (err, rows) => {
+				if (err) {
+					reject(err)
+				} else {
+					resolve(rows)
+				}
+			})
+		})
+	}
 }
 
 module.exports = ChatLog
