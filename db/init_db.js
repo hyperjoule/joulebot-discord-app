@@ -34,6 +34,20 @@ const initDb = async () => {
         )
       `)
 
+			db.run(`
+        CREATE TABLE IF NOT EXISTS chat_logs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          discord_id TEXT,
+          initial_question TEXT,
+          answer TEXT,
+          prompt_tokens INTEGER,
+          completion_tokens INTEGER,
+          total_tokens INTEGER,
+          personality_id INTEGER,
+          temperature REAL,
+          timestamp TEXT
+        )
+      `)
 			// Prepare the SQL statement for inserting data into the personalities table
 			const stmt = db.prepare('INSERT OR IGNORE INTO personalities (id, label, content, temperature) VALUES (?, ?, ?, ?)')
 

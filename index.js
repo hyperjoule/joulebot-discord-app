@@ -108,7 +108,6 @@ const startBot = async () => {
 				await handleDirectMessage(message)
 			}
 		}
-
 	})
 
 	client.on('error', (error) => {

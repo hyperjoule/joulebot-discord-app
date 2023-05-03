@@ -23,7 +23,7 @@ async function handleAskCommand(interaction) {
 	await interaction.deferReply()
 	const userName = interaction.member.displayName
 	const userInput = interaction.options.getString('question')
-	const chatbotResponse = await handleSend(userInput, selectedPersonalityIdx)
+	const chatbotResponse = await handleSend(userInput, selectedPersonalityIdx, interaction.user.id)
 	await interaction.editReply(`**${userName} asks:** ${userInput}\n\n**Joulebot:** ${chatbotResponse}`)
 }
 
@@ -31,7 +31,7 @@ async function handleDrawCommand(interaction) {
 	await interaction.deferReply()
 	const userName = interaction.member.displayName
 	const imageDescription = interaction.options.getString('description')
-	const imageUrl = await generateImage(imageDescription)
+	const imageUrl = await generateImage(imageDescription, interaction.user.id)
 	if (imageUrl) {
 		const imageEmbed = new EmbedBuilder()
 			.setColor('#0099ff')
@@ -76,7 +76,7 @@ async function handleDirectMessage(message) {
 	const typingInterval = setInterval(() => {
 		message.channel.sendTyping()
 	}, 2000) // Repeat every 2 seconds.
-	const chatbotResponse = await handleSend(userName + ' asks: ' + userInput, selectedPersonalityIdx)
+	const chatbotResponse = await handleSend(userName + ' asks: ' + userInput, selectedPersonalityIdx, message.author.id)
 	clearInterval(typingInterval)
 	await message.reply(chatbotResponse)
 }
@@ -88,7 +88,7 @@ async function handleReply(message) {
 	const typingInterval = setInterval(() => {
 		message.channel.sendTyping()
 	}, 2000) // Repeat every 2 seconds.
-	const chatbotResponse = await handleSend(userName + ' responds: ' + userInput, selectedPersonalityIdx)
+	const chatbotResponse = await handleSend(userName + ' responds: ' + userInput, selectedPersonalityIdx, message.author.id)
 	clearInterval(typingInterval)
 	await message.reply(chatbotResponse)
 }
