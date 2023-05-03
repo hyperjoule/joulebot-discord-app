@@ -2,6 +2,9 @@
 const { handleSend } = require('../api')
 const { getPersonalityIdxLbl, getRandomPersonalityIndex } = require('../db/controllers/personalityController')
 const randomPrompts = require('./random_prompts.json')
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000 
+
 const getRandomPrompt = () => {
 	const randomIndex = Math.floor(Math.random() * randomPrompts.length)
 	return randomPrompts[randomIndex]
@@ -26,20 +29,31 @@ async function setPersonalityChoices() {
 }
 
 async function sendRandomDm(guild) {
-	try {
-		const fetchedMembers = await guild.members.fetch({ limit: 100, withPresences: true, time: 30000 })
-		const guildMembers = fetchedMembers.filter(member => !member.user.bot)
-		const random_member = guildMembers.random()
-		const question = `Hi Joulebot!  I am ${random_member.displayName}. Greet me and comment on this conversation starter: ${getRandomPrompt()}`
-		selectedPersonalityIdx = await getRandomPersonalityIndex()
-		const chatbotResponse = await handleSend(question, selectedPersonalityIdx, random_member.user.id)
-		await random_member.send(chatbotResponse)
-		console.log(`Sent random message to ${random_member.displayName}`)
-	} catch (error) {
-		if (error.code === 'GuildMembersTimeout') {
-			console.log("Members didn't arrive in time. Increase the timeout duration if needed.")
-		} else {
-			console.log(error)
+	let retries = 0
+	while (retries < MAX_RETRIES) {
+		try {
+			const fetchedMembers = await guild.members.fetch({ limit: 100, withPresences: true, time: 60000 })
+			const guildMembers = fetchedMembers.filter(member => !member.user.bot)
+			const random_member = guildMembers.random()
+			const question = `Hi Joulebot!  I am ${random_member.displayName}. Greet me and comment on this conversation starter: ${getRandomPrompt()}`
+			selectedPersonalityIdx = await getRandomPersonalityIndex()
+			const chatbotResponse = await handleSend(question, selectedPersonalityIdx, random_member.user.id)
+			await random_member.send(chatbotResponse)
+			console.log(`Sent random message to ${random_member.displayName}`)
+			break // Exit the loop if successful
+		} catch (error) {
+			if (error.code === 'GuildMembersTimeout') {
+				console.log("Members didn't arrive in time. Increase the timeout duration if needed.")
+			} else {
+				console.log(error)
+			}
+			retries += 1
+			if (retries < MAX_RETRIES) {
+				console.log(`Retry ${retries}/${MAX_RETRIES} - waiting for ${RETRY_DELAY} ms`)
+				await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
+			} else {
+				console.log('Maximum retries reached. Aborting.')
+			}
 		}
 	}
 }
