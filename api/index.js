@@ -2,7 +2,8 @@
 const dotenv = require('dotenv')
 dotenv.config()
 const axios = require('axios')
-const { getPersonalityContent, getTemperatureValue } = require('../db/userQueries')
+const chatLogController = require('../db/controllers/chatLogController')
+const { getContentValue, getTemperatureValue, getLabelValue } = require('../db/controllers/personalityController')
 const natural = require('natural')
 const tokenizer = new natural.WordTokenizer()
 const sw = require('stopword')
@@ -14,7 +15,7 @@ const MAX_RETRIES = 3
 const conversationHistory = []
 
 const preprocessText = (text) => {
-	const lowerText = text.toLowerCase();
+	const lowerText = text.toLowerCase()
 	const cleanedText = lowerText.replace(/[^\w\s]|_/g, '')
 	const tokens = tokenizer.tokenize(cleanedText)
 	const stopwordFreeTokens = sw.removeStopwords(tokens)
@@ -22,38 +23,7 @@ const preprocessText = (text) => {
 	return reducedText
 }
 
-const generateImage = async (prompt) => {
-	try {
-		const response = await axios.post(
-			'https://api.openai.com/v1/images/generations',
-			{
-				model: 'image-alpha-001',
-				prompt,
-				num_images: 1,
-				size: '512x512',
-				response_format: 'url'
-			},
-			{
-				headers: {
-					'Content-Type': 'application/json',
-					Authorization: `Bearer ${API_KEY}`
-				}
-			}
-		)
-
-		if (response.status === 200) {
-			return response.data.data[0].url
-		}
-	} catch (error) {
-		console.error('Error generating image:', error)
-		if (error.response) {
-			console.error('Error response data:', error.response.data)
-		}
-		return null
-	}
-}
-
-const handleSend = async (textInput, personalityIdx = 0) => {
+const handleSend = async (textInput, personalityIdx = 0, discordId) => {
 	let retries = 0
 	let retryDelay = 500
 
@@ -61,7 +31,6 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 	const processedTextInput = preprocessText(textInput)
 	conversationHistory.push({ role: 'user', content: processedTextInput })
 	console.log('Question Raw text:' + textInput)
-	console.log('Question Processed: ' + processedTextInput)
 	// Limit the conversation history to the last MAX_HISTORY messages
 	if (conversationHistory.length > MAX_HISTORY) {
 		conversationHistory.shift()
@@ -69,24 +38,10 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 
 	while (retries < MAX_RETRIES) {
 		try {
-			const personalityContent = await new Promise((resolve, reject) => {
-				getPersonalityContent(personalityIdx, (err, content) => {
-					if (err) {
-						reject(err)
-					} else {
-						resolve(content)
-					}
-				})
-			})
-			const temperature = await new Promise((resolve, reject) => {
-				getTemperatureValue(personalityIdx, (err, value) => {
-					if (err) {
-						reject(err)
-					} else {
-						resolve(value)
-					}
-				})
-			})
+			const personalityContent = await getContentValue(personalityIdx)
+			const temperature = await getTemperatureValue(personalityIdx)	
+			const personalityLabel = await getLabelValue(personalityIdx)
+  		
 			const messages = [
 				{
 					role: 'system',
@@ -112,17 +67,38 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 						Authorization: `Bearer ${API_KEY}`
 					}
 				}
+				
 			)
-
+			const promptTokens = response.data.usage.prompt_tokens
+			const completionTokens = response.data.usage.completion_tokens
+			const totalTokens = response.data.usage.total_tokens
 			const text = response.data.choices[0].message.content
 			const processedAnswerTextInput = preprocessText(text)
+			// Prepare data for insertion into the database
+			const dataToInsert = {
+				discord_id: discordId, 
+				initial_question: textInput, 
+				answer: text, 
+				prompt_tokens: promptTokens,
+				completion_tokens: completionTokens,
+				total_tokens: totalTokens,
+				personality_id: personalityIdx,
+				temperature: temperature
+			}
+			try {
+				// Insert the chat log data into the database
+				await chatLogController.addChatLog(dataToInsert)
+				console.log('Chat log data inserted successfully')
+			} catch (err) {
+				console.error('Error inserting chat log data:', err)
+			}			
 			conversationHistory.push({ role: 'assistant', content: processedAnswerTextInput })
 			console.log('Answer Raw text:' + text)
-			console.log('Answer Processed: ' + processedAnswerTextInput)
 			if (conversationHistory.length > MAX_HISTORY) {
 				conversationHistory.shift()
 			}
-			return text
+			const formattedResponse = `**${personalityLabel}**\n${text}`
+			return formattedResponse
 		} catch (error) {
 			if (
 				error?.response?.data?.error?.message?.includes('maximum context length is')
@@ -151,5 +127,35 @@ const handleSend = async (textInput, personalityIdx = 0) => {
 	// If all retries failed, return an error message
 	return "I'm sorry, but I'm having trouble connecting right now. Please try again later."
 }
-exports.handleSend = handleSend;
-exports.generateImage = generateImage;
+
+const generateImage = async (prompt, discordId) => {
+	try {
+		const response = await axios.post(
+			'https://api.openai.com/v1/images/generations',
+			{
+				model: 'image-alpha-001',
+				prompt,
+				num_images: 1,
+				size: '512x512',
+				response_format: 'url'
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${API_KEY}`
+				}
+			}
+		)
+		// Log the response as JSON
+		console.log(JSON.stringify(response.data, null, 2))
+
+		if (response.status === 200) {
+			return response.data.data[0].url
+		}
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+exports.handleSend = handleSend
+exports.generateImage = generateImage
