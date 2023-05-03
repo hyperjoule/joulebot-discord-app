@@ -56,7 +56,7 @@ async function sendGreeting(user) {
 	try {
 		const question = `My name is ${user.username}. I'm new to the discord server!  Greet me and tell me about yourself!`
 		selectedPersonalityIdx = await getRandomPersonalityIndex()
-		const chatbotResponse = await handleSend(question, selectedPersonalityIdx)
+		const chatbotResponse = await handleSend(question, selectedPersonalityIdx, user.id)
 		await user.send(chatbotResponse)
 		console.log(`Sent greeting to ${user.username}`)
 	} catch (error) {
