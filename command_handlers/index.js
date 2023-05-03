@@ -70,21 +70,22 @@ async function handlePersonalityCommand(interaction) {
 async function handleReply(message, txtString = ' says: ') {
 	const userName = message.author.username
 	const userInput = message.content
-	const reactEmoji = await getEmojiReaction(userInput)
-
-	if (reactEmoji) {
-		message.react(reactEmoji)
-			.then(() => console.log('Reacted with emoji!'))
-			.catch(error => console.error('Failed to react:', error))
-	} else {
-		console.error('Invalid emoji:', reactEmoji)
+	// 10 percent chance of emoji react
+	if (Math.random() < 0.1) {
+		const reactEmoji = await getEmojiReaction(userInput)
+		if (reactEmoji) {
+			message.react(reactEmoji)
+				.then(() => console.log('Reacted with emoji!'))
+				.catch(error => console.error('Failed to react:', error))
+		} else {
+			console.error('Invalid emoji:', reactEmoji)
+		}
 	} 
-	
 	selectedPersonalityIdx = await getPersonalityIdByDiscordId(message.author.id)
 	// Start a loop to repeatedly send the typing indicator.
 	const typingInterval = setInterval(() => {
 		message.channel.sendTyping()
-	}, 5000) // Repeat every 5 seconds.
+	}, 3000) // Repeat every 3 seconds.
 	const chatbotResponse = await handleSend(userName + txtString + userInput, selectedPersonalityIdx, message.author.id)
 	clearInterval(typingInterval)
 	await message.reply(chatbotResponse)
