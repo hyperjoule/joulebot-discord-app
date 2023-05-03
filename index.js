@@ -8,7 +8,7 @@ const { addUser } = require('./db/controllers/userController.js')
 const { prepopulateUserSettings } = require('./db/controllers/userSettingController.js')
 const { setPersonalityChoices, scheduleRandomDm, sendGreeting } = require('./helpers')
 
-const { Client, GatewayIntentBits, Partials } = require('discord.js')
+const { Client, GatewayIntentBits, Partials, DMChannel } = require('discord.js')
 
 const client = new Client({
 	intents: [
@@ -98,8 +98,8 @@ const startBot = async () => {
 			return
 		}
 	
-		// Check if the message is a direct message or a reply
-		if (message.channel.type === 'DM') {
+		// Check if the message is a direct message
+		if ( message.guild===null ) {
 			await handleReply(message, ' asks: ')
 		} else if (message.reference?.messageId) {
 			// Fetch the replied-to message
@@ -117,16 +117,6 @@ const startBot = async () => {
 				await handleReply(message, ' asks: ')
 			}
 		}
-	})
-	
-	client.on('error', (error) => {
-		console.error('Discord client error:', error)
-	})
-
-	client.on('guildMemberAdd', async (member) => {
-		console.log('Guild member add triggered')
-		await addUser(member.user)
-		await sendGreeting(member.user)
 	})
 
 	client.on('interactionCreate', async interaction => {

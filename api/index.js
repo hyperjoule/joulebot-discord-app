@@ -13,6 +13,21 @@ const MAX_TOKENS = 1500
 const MAX_HISTORY = 10 
 const MAX_RETRIES = 3
 const conversationHistory = []
+const getRandomThinkingEmoji = () => {
+	const thinkingEmojis = [
+		'🤔', // Thinking face
+		'🧐', // Face with monocle
+		'💭', // Thought balloon
+		'🤨', // Face with raised eyebrow
+		'🤷', // Person shrugging
+		'🙇', // Person bowing
+		'🤯', // Exploding head
+		'🧠', // Brain
+		'💡' // Light bulb
+	]
+	const randomIndex = Math.floor(Math.random() * thinkingEmojis.length)
+	return thinkingEmojis[randomIndex]
+}
 
 function isUnicodeEmoji(str) {
 	// Regex pattern to match Unicode emoji characters
@@ -159,21 +174,16 @@ const getEmojiReaction = async (messageContent) => {
 				}
 			}
 		)
-		// Extract the response content and split it into individual characters
 		const responseContent = response.data.choices[0].message.content.trim()
 		const characters = [...responseContent]
 		// Find the first valid emoji character in the response
 		const emoji = characters.find(char => isUnicodeEmoji(char))
 		console.log(`Emoji react: ${emoji}`)
-		if (isUnicodeEmoji(emoji)) {
-			return emoji
-		} else {
-			return '👍' // Return a default emoji if the AI-generated emoji is not valid
-		}
+		return emoji || getRandomThinkingEmoji()
 	} catch (error) {
 		// If the AI messes up, log the error
 		console.error(error)
-		return null 
+		return getRandomThinkingEmoji() 
 	}
 }
 
