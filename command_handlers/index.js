@@ -30,8 +30,14 @@ async function handleAskCommand(interaction) {
 
 async function handleDrawCommand(interaction) {
 	await interaction.deferReply()
-	const userName = interaction.member.displayName
 	const imageDescription = interaction.options.getString('description')
+	// Check if the input length exceeds 256 characters
+	if (imageDescription.length > 256) {
+		await interaction.editReply('Please limit your request to under 256 characters.')
+		return 
+	}
+	const userName = interaction.member.displayName
+	
 	const imageUrl = await generateImage(imageDescription, interaction.user.id)
 	if (imageUrl) {
 		const imageEmbed = new EmbedBuilder()
