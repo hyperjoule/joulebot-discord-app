@@ -10,7 +10,7 @@ const sw = require('stopword')
 const API_KEY = process.env.API_KEY
 const MODEL = 'gpt-4' // change to whatever model you are using - see powershell script model_list.sh
 const MAX_TOKENS = 1500
-const MAX_HISTORY = 10 // I've played with this a bit but 10 seems to work well with the token limit 1500 for gpt-3.5-turbo
+const MAX_HISTORY = 10 
 const MAX_RETRIES = 3
 const conversationHistory = []
 
@@ -25,7 +25,7 @@ const preprocessText = (text) => {
 
 const handleSend = async (textInput, personalityIdx = 0, discordId) => {
 	let retries = 0
-	let retryDelay = 500
+	let retryDelay = 1000
 
 	// Fetch the last MAX_HISTORY-1 number of responses from the database for the specific user
 	const lastConversations = await chatLogController.getLastConversations(discordId, MAX_HISTORY-1)
