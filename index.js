@@ -93,6 +93,11 @@ const startBot = async () => {
 		// Ignore messages from bots
 		if (message.author.bot) return
 
+		// If message is empty, null, or undefined, ignore
+		if (!message || message === null || message === 'undefined') {
+			return
+		}
+
 		// Check if the message is a direct message or a reply
 		if (message.channel.type === 1) {
 			await handleReply(message, ' asks: ')
