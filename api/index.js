@@ -13,6 +13,7 @@ const MAX_TOKENS = 1500
 const MAX_HISTORY = 10 
 const MAX_RETRIES = 3
 const conversationHistory = []
+
 const getRandomThinkingEmoji = () => {
 	const thinkingEmojis = [
 		'🤔', // Thinking face
@@ -29,7 +30,7 @@ const getRandomThinkingEmoji = () => {
 	return thinkingEmojis[randomIndex]
 }
 
-function isUnicodeEmoji(str) {
+const isUnicodeEmoji = (str) => {
 	// Regex pattern to match Unicode emoji characters
 	const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u
 	return emojiRegex.test(str)
