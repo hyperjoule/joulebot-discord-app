@@ -92,28 +92,33 @@ const startBot = async () => {
 	client.on('messageCreate', async (message) => {
 		// Ignore messages from bots
 		if (message.author.bot) return
-
+	
 		// If message is empty, null, or undefined, ignore
 		if (!message || message === null || message === 'undefined') {
 			return
 		}
-
+	
 		// Check if the message is a direct message or a reply
-		if (message.channel.type === 1) {
+		if (message.channel.type === 'DM') {
 			await handleReply(message, ' asks: ')
 		} else if (message.reference?.messageId) {
-			await handleReply(message)
+			// Fetch the replied-to message
+			const repliedToMessage = await message.channel.messages.fetch(message.reference.messageId)
+			// Check if the replied-to message was sent by the bot
+			if (repliedToMessage.author.id === client.user.id) {
+				await handleReply(message)
+			}
 		} else {
 			const botUsernamePrefix = client.user.username.substring(0, 8).toLowerCase()
 			const messageContentLower = message.content.toLowerCase()
 			if (messageContentLower.includes(botUsernamePrefix)) {
 				await handleReply(message, ' asks: ')
-			}	else if (message.mentions.users.has(client.user.id)) {
+			} else if (message.mentions.users.has(client.user.id)) {
 				await handleReply(message, ' asks: ')
 			}
 		}
 	})
-
+	
 	client.on('error', (error) => {
 		console.error('Discord client error:', error)
 	})
