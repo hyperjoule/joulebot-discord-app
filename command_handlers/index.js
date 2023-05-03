@@ -68,7 +68,7 @@ async function handleReply(message, txtString = ' says: ') {
 	// Start a loop to repeatedly send the typing indicator.
 	const typingInterval = setInterval(() => {
 		message.channel.sendTyping()
-	}, 2000) // Repeat every 2 seconds.
+	}, 5000) // Repeat every 5 seconds.
 	const chatbotResponse = await handleSend(userName + txtString + userInput, selectedPersonalityIdx, message.author.id)
 	clearInterval(typingInterval)
 	await message.reply(chatbotResponse)

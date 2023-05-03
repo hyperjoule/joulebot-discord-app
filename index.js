@@ -133,6 +133,7 @@ const startBot = async () => {
 			await handlePersonalityCommand(interaction)
 			break
 		}
+		
 	})
 					
 	client.login(process.env.BOT_TOKEN)

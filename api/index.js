@@ -8,7 +8,7 @@ const natural = require('natural')
 const tokenizer = new natural.WordTokenizer()
 const sw = require('stopword')
 const API_KEY = process.env.API_KEY
-const MODEL = 'gpt-4' // change to whatever model you are using - see powershell script model_list.sh
+const MODEL = 'gpt-4' // change to whatever default model you are using - see powershell script model_list.sh
 const MAX_TOKENS = 1500
 const MAX_HISTORY = 10 
 const MAX_RETRIES = 3
@@ -23,7 +23,7 @@ const preprocessText = (text) => {
 	return reducedText
 }
 
-const handleSend = async (textInput, personalityIdx = 0, discordId) => {
+const handleSend = async (textInput, personalityIdx = 0, discordId, useModel=MODEL) => {
 	let retries = 0
 	let retryDelay = 1000
 
@@ -60,7 +60,7 @@ const handleSend = async (textInput, personalityIdx = 0, discordId) => {
 				'https://api.openai.com/v1/chat/completions',
 				{
 					messages,
-					model: MODEL,
+					model: useModel,
 					max_tokens: MAX_TOKENS,
 					frequency_penalty: 0.5,
 					presence_penalty: 1,
