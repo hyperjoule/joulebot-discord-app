@@ -134,6 +134,33 @@ const handleSend = async (textInput, personalityIdx = 0, discordId, useModel=MOD
 	return "I'm sorry, but I'm having trouble connecting right now. Please try again later."
 }
 
+const getEmojiReaction = async (messageContent) => {
+	try {
+		const response = await axios.post(
+			'https://api.openai.com/v1/chat/completions',
+			{
+				messages: [
+					{ role: 'user', content: messageContent },
+					{ role: 'assistant', content: 'What emoji should I use as a reaction to this message?' }
+				],
+				model: 'gpt-3.5-turbo',
+				max_tokens: 10
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${API_KEY}`
+				}
+			}
+		)
+		const emoji = response.data.choices[0].message.content.trim()
+		return emoji
+	} catch (error) {
+		console.error(error)
+		return null
+	}
+}
+
 const generateImage = async (prompt, discordId) => {
 	try {
 		const response = await axios.post(
@@ -163,3 +190,4 @@ const generateImage = async (prompt, discordId) => {
 
 exports.handleSend = handleSend
 exports.generateImage = generateImage
+exports.getEmojiReaction = getEmojiReaction

@@ -1,4 +1,4 @@
-const { handleSend, generateImage } = require('../api')
+const { handleSend, generateImage, getEmojiReaction } = require('../api')
 const { EmbedBuilder } = require('discord.js')
 const { getPersonalityIdxLbl } = require('../db/controllers/personalityController')
 const { updatePersonalityId, getPersonalityIdByDiscordId } = require('../db/controllers/userSettingController')
@@ -67,9 +67,11 @@ async function handlePersonalityCommand(interaction) {
 	}
 }
 
-async function handleReply(message, txtString = ' says: ') { 
+async function handleReply(message, txtString = ' says: ') {
 	const userName = message.author.username
 	const userInput = message.content
+	const reactEmoji = await getEmojiReaction(userInput) 
+	await message.react(reactEmoji)
 	selectedPersonalityIdx = await getPersonalityIdByDiscordId(message.author.id)
 	// Start a loop to repeatedly send the typing indicator.
 	const typingInterval = setInterval(() => {
