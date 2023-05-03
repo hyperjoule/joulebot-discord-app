@@ -70,8 +70,16 @@ async function handlePersonalityCommand(interaction) {
 async function handleReply(message, txtString = ' says: ') {
 	const userName = message.author.username
 	const userInput = message.content
-	const reactEmoji = await getEmojiReaction(userInput) 
-	await message.react(reactEmoji)
+	const reactEmoji = await getEmojiReaction(userInput)
+
+	if (reactEmoji) {
+		message.react(reactEmoji)
+			.then(() => console.log('Reacted with emoji!'))
+			.catch(error => console.error('Failed to react:', error))
+	} else {
+		console.error('Invalid emoji:', reactEmoji)
+	} 
+	
 	selectedPersonalityIdx = await getPersonalityIdByDiscordId(message.author.id)
 	// Start a loop to repeatedly send the typing indicator.
 	const typingInterval = setInterval(() => {

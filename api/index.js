@@ -14,6 +14,12 @@ const MAX_HISTORY = 10
 const MAX_RETRIES = 3
 const conversationHistory = []
 
+function isUnicodeEmoji(str) {
+	// Regex pattern to match Unicode emoji characters
+	const emojiRegex = /[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}]/u
+	return emojiRegex.test(str)
+}
+
 const preprocessText = (text) => {
 	const lowerText = text.toLowerCase()
 	const cleanedText = lowerText.replace(/[^\w\s]|_/g, '')
@@ -141,7 +147,7 @@ const getEmojiReaction = async (messageContent) => {
 			{
 				messages: [
 					{ role: 'user', content: messageContent },
-					{ role: 'assistant', content: 'What emoji should I use as a reaction to this message?' }
+					{ role: 'assistant', content: 'React with a unicode emoji to this message' }
 				],
 				model: 'gpt-3.5-turbo',
 				max_tokens: 10
@@ -153,11 +159,21 @@ const getEmojiReaction = async (messageContent) => {
 				}
 			}
 		)
-		const emoji = response.data.choices[0].message.content.trim()
-		return emoji
+		// Extract the response content and split it into individual characters
+		const responseContent = response.data.choices[0].message.content.trim()
+		const characters = [...responseContent]
+		// Find the first valid emoji character in the response
+		const emoji = characters.find(char => isUnicodeEmoji(char))
+		console.log(`Emoji react: ${emoji}`)
+		if (isUnicodeEmoji(emoji)) {
+			return emoji
+		} else {
+			return '👍' // Return a default emoji if the AI-generated emoji is not valid
+		}
 	} catch (error) {
+		// If the AI messes up, log the error
 		console.error(error)
-		return null
+		return null 
 	}
 }
 
