@@ -5,7 +5,7 @@ const axios = require('axios')
 const chatLogController = require('../db/controllers/chatLogController')
 const { getContentValue, getTemperatureValue, getLabelValue } = require('../db/controllers/personalityController')
 const API_KEY = process.env.API_KEY
-const MODEL = 'gpt-3.5-turbo' // change to whatever default model you are using - see powershell script model_list.sh
+const MODEL = 'gpt-3.5-turbo' // default.  can override with useModel passed to handleSend
 const MAX_TOKENS = 1500
 const MAX_HISTORY = 10 
 const MAX_RETRIES = 3
@@ -155,7 +155,7 @@ const getEmojiReaction = async (messageContent) => {
 					{ role: 'user', content: messageContent },
 					{ role: 'assistant', content: 'React with a unicode emoji to this message' }
 				],
-				model: 'gpt-3.5-turbo',
+				model: 'gpt-3.5-turbo', // this needs to be at least gpt-3.5
 				max_tokens: 10
 			},
 			{
@@ -167,15 +167,18 @@ const getEmojiReaction = async (messageContent) => {
 		)
 		const responseContent = response.data.choices[0].message.content.trim()
 		const characters = [...responseContent]
+
 		// Find the first valid emoji character in the response
 		const emoji = characters.find(char => isUnicodeEmoji(char))
 		console.log(`Emoji react: ${emoji}`)
 		return emoji || getRandomThinkingEmoji()
+
 	} catch (error) {
 		// If the AI messes up, log the error
 		console.error(error)
 		return getRandomThinkingEmoji() 
 	}
+
 }
 
 const generateImage = async (prompt, discordId) => {
