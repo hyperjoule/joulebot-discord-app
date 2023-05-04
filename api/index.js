@@ -36,6 +36,7 @@ const isUnicodeEmoji = (str) => {
 	return emojiRegex.test(str)
 }
 
+// not used for the moment - confuses gpt-3.5
 const preprocessText = (text) => {
 	const lowerText = text.toLowerCase()
 	const cleanedText = lowerText.replace(/[^\w\s]|_/g, '')
@@ -54,8 +55,8 @@ const handleSend = async (textInput, personalityIdx = 0, discordId, useModel=MOD
 	// Populate the conversation history
 	conversationHistory.length = 0 // Clear the current conversation history
 	lastConversations.forEach((conv) => {
-		conversationHistory.push({ role: 'user', content: preprocessText(conv.initial_question) })
-		conversationHistory.push({ role: 'assistant', content: preprocessText(conv.answer) })
+		conversationHistory.push({ role: 'user', content: conv.initial_question })
+		conversationHistory.push({ role: 'assistant', content: conv.answer })
 	})
 	// Add the user's input message to the conversation history
 	conversationHistory.push({ role: 'user', content: textInput })

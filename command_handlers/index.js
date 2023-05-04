@@ -70,8 +70,8 @@ async function handlePersonalityCommand(interaction) {
 async function handleReply(message, txtString = ' says: ') {
 	const userName = message.author.username
 	const userInput = message.content
-	// 10 percent chance of emoji react
-	if (Math.random() < 0.1) {
+	// 40 percent chance of emoji react
+	if (Math.random() < 0.4) {
 		const reactEmoji = await getEmojiReaction(userInput)
 		if (reactEmoji) {
 			message.react(reactEmoji)
