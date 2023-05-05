@@ -20,9 +20,6 @@ const getTokenCount = (text) => {
 	}
 	return tokens
 }
-const natural = require('natural')
-const tokenizer = new natural.WordTokenizer()
-const sw = require('stopword')
 
 const getRandomThinkingEmoji = () => {
 	const thinkingEmojis = [
@@ -48,6 +45,9 @@ const isUnicodeEmoji = (str) => {
 
 // not used for the moment - confuses gpt-3.5
 const preprocessText = (text) => {
+	const natural = require('natural')
+	const tokenizer = new natural.WordTokenizer()
+	const sw = require('stopword')
 	const lowerText = text.toLowerCase()
 	const cleanedText = lowerText.replace(/[^\w\s]|_/g, '')
 	const tokens = tokenizer.tokenize(cleanedText)
