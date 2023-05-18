@@ -5,7 +5,7 @@ dotenv.config()
 const initDb = require('./db/init_db')
 const { addAllGuildMembersToDatabase } = require('./utils/db_functions')
 const { prepopulateUserSettings } = require('./db/controllers/userSettingController.js')
-const { setPersonalityChoices, scheduleRandomDm, sendGreeting } = require('./helpers')
+const { setPersonalityChoices, scheduleRandomDm } = require('./helpers')
 
 const { Client, GatewayIntentBits, Partials, DMChannel } = require('discord.js')
 
