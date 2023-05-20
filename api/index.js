@@ -5,8 +5,8 @@ const axios = require('axios')
 const chatLogController = require('../db/controllers/chatLogController')
 const { getContentValue, getTemperatureValue, getLabelValue } = require('../db/controllers/personalityController')
 const API_KEY = process.env.API_KEY
-const MODEL = 'gpt-3.5-turbo' // default.  can override with useModel passed to handleSend
-const MAX_TOKENS = 1500
+const MODEL = 'gpt-4' // default.  can override with useModel passed to handleSend
+const MAX_TOKENS = 2000
 const MAX_HISTORY = 10 
 const MAX_RETRIES = 3
 const conversationHistory = []
@@ -242,6 +242,57 @@ const generateImage = async (prompt, discordId) => {
 	}
 }
 
+const handleGreeting = async (member, personalityIdx = 0, channel) => {
+	try {
+		const personalityContent = await getContentValue(personalityIdx)
+		const temperature = await getTemperatureValue(personalityIdx)
+		const personalityLabel = await getLabelValue(personalityIdx)
+
+		const messages = [
+			{
+				role: 'system',
+				content: personalityContent
+			},
+			{
+				role: 'assistant',
+				content: `Let's greet a new member!`
+			}
+		]
+		const response = await axios.post(
+			'https://api.openai.com/v1/chat/completions',
+			{
+				messages,
+				model: 'gpt-3.5-turbo',
+				max_tokens: 20,
+				frequency_penalty: 0.5,
+				presence_penalty: 1,
+				temperature: temperature
+			},
+			{
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${API_KEY}`
+				}
+			}
+			
+		)
+		const text = response.data.choices[0].message.content
+		console.log(`joulebot generated greeting: ${text}`)
+
+		const greetingMessage = `**${personalityLabel}**\n${text.replace(/{user}/g, member.displayName)}`
+
+		if (channel) {
+			await channel.send(greetingMessage)
+		}
+
+		return greetingMessage
+	} catch (error) {
+		console.error('handleGreeting error:', error)
+		return null
+	}
+}
+
+exports.handleGreeting = handleGreeting
 exports.handleSend = handleSend
 exports.generateImage = generateImage
 exports.getEmojiReaction = getEmojiReaction

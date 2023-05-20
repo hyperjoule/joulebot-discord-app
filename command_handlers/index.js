@@ -29,6 +29,10 @@ async function handleAskCommand(interaction) {
 }
 
 async function handleDrawCommand(interaction) {
+	if (!message.member.hasPermission('ADMINISTRATOR')) {
+		message.reply('Sorry, you do not have the necessary permissions to use this command.')
+		return
+	}
 	await interaction.deferReply()
 	const imageDescription = interaction.options.getString('description')
 	// Check if the input length exceeds 256 characters

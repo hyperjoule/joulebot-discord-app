@@ -4,6 +4,7 @@ dotenv.config()
 
 const initDb = require('./db/init_db')
 const { addAllGuildMembersToDatabase } = require('./utils/db_functions')
+const { checkUserInDatabase } = require('./db/controllers/userController.js')
 const { prepopulateUserSettings } = require('./db/controllers/userSettingController.js')
 const { setPersonalityChoices, scheduleRandomDm } = require('./helpers')
 
@@ -32,6 +33,8 @@ const { handleAskCommand,
 	handleDrawCommand, 
 	handlePersonalityCommand, 
 	handleReply } = require('./command_handlers')
+const { getRandomPersonalityIndex } = require('./db/controllers/personalityController')
+const { handleGreeting } = require('./api')
 
 const startBot = async () => {
 	await initDb()
@@ -94,7 +97,6 @@ const startBot = async () => {
 		scheduleRandomDm(client)
 	})
 
-
 	client.on('messageCreate', async (message) => {
 		// Ignore messages from bots
 		if (message.author.bot) return
@@ -121,6 +123,28 @@ const startBot = async () => {
 				await handleReply(message, ' asks: ')
 			} else if (message.mentions.users.has(client.user.id)) {
 				await handleReply(message, ' asks: ')
+			}
+		}
+	})
+	
+	client.on('interactionCreate', async (interaction) => {
+		if (interaction.isMessage()) {
+			const member = interaction.member
+
+			const generalChannel = member.guild.channels.cache.find(channel => channel.name === 'general' && channel.type === 'GUILD_TEXT')
+
+			if (generalChannel && interaction.channelId === generalChannel.id) {
+				try {
+					const userExists = await checkUserInDatabase(member.id)
+
+					if (!userExists) {
+						await addUserToDatabase(member)
+						const personalityIdx = getRandomPersonalityIndex()
+						await handleGreeting(member, personalityIdx, generalChannel)
+					}
+				} catch (error) {
+					console.error('Error on interactionCreate:', error)
+				}
 			}
 		}
 	})

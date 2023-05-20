@@ -10,6 +10,12 @@ async function addAllGuildMembersToDatabase(guild) {
 	})
 }
 
+async function addUserToDatabase(member) {
+	if (!member.user.bot) {
+		addUser(member.user)
+	}
+}
+
 module.exports = {
-	addAllGuildMembersToDatabase
+	addAllGuildMembersToDatabase, addUserToDatabase
 }

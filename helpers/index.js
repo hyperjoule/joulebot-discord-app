@@ -60,8 +60,16 @@ async function sendRandomDm(guild) {
 
 async function scheduleRandomDm(client) {
 	while (true) {
-		const guild = client.guilds.cache.get(process.env.GUILD_ID)
-		await sendRandomDm(guild)
+		// Get all guilds
+		const guilds = client.guilds.cache.values()
+
+		for (const guild of guilds) {
+			await sendRandomDm(guild)
+			// Wait between sending messages to different guilds
+			await new Promise(resolve => setTimeout(resolve, 60 * 1000))
+		}
+
+		// Wait before starting the next round of messages
 		await new Promise(resolve => setTimeout(resolve, 3 * 60 * 60 * 1000))
 	}
 }

@@ -10,3 +10,13 @@ exports.addUser = async (user) => {
 		throw err
 	}
 }
+
+exports.checkUserInDatabase = async (discordId) => {
+	try {
+		const user = await User.getUserById(discordId)
+		return user ? true : false
+	} catch (err) {
+		console.error(`Error checking user: ${err.message}`)
+		throw err
+	}
+}

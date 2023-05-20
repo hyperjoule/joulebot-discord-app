@@ -1,6 +1,21 @@
 const db = require('../../db')
 
 class User {
+	
+	static getUserById(discordId) {
+		return new Promise((resolve, reject) => {
+			const stmt = db.prepare(`SELECT * FROM users WHERE discord_id = ?`)
+			stmt.get(discordId, (err, row) => {
+				if (err) {
+					reject(err)
+				} else {
+					resolve(row)
+				}
+			})
+			stmt.finalize()
+		})
+	}
+
 	static addUser(user) {
 		return new Promise((resolve, reject) => {
 			const stmt = db.prepare(`INSERT OR IGNORE INTO users (discord_id, username, discriminator) VALUES (?, ?, ?)`)
@@ -15,5 +30,6 @@ class User {
 		})
 	}
 }
+
 
 module.exports = User
