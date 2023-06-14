@@ -54,3 +54,12 @@ exports.prepopulateUserSettings = async () => {
 		console.error(err)
 	}
 }
+
+exports.addUserSettings = async (discordId) => {
+	console.log('Adding user settings for', discordId)
+	try {
+		await UserSetting.addSetting({ id: discordId })
+	} catch (err) {
+		console.error(err)
+	}
+}

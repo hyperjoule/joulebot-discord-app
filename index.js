@@ -1,9 +1,9 @@
 // index.js
 const dotenv = require('dotenv').config()
 const initDb = require('./db/init_db')
-const { addAllGuildMembersToDatabase } = require('./utils/db_functions')
+const { addAllGuildMembersToDatabase, addUserToDatabase } = require('./utils/db_functions')
 const { checkUserInDatabase } = require('./db/controllers/userController.js')
-const { prepopulateUserSettings } = require('./db/controllers/userSettingController.js')
+const { prepopulateUserSettings, addUserSettings } = require('./db/controllers/userSettingController.js')
 const { setPersonalityChoices, scheduleRandomDm } = require('./helpers')
 
 const { Client, GatewayIntentBits, Partials, DMChannel } = require('discord.js')
@@ -13,7 +13,6 @@ const client = new Client({
 		GatewayIntentBits.Guilds,
 		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.GuildMessages,
-		GatewayIntentBits.GuildMembers,
 		GatewayIntentBits.DirectMessageTyping,
 		GatewayIntentBits.MessageContent, 
 		GatewayIntentBits.DirectMessages,
@@ -163,9 +162,13 @@ const startBot = async () => {
 			await handlePersonalityCommand(interaction)
 			break
 		}
-
 	})
-					
+
+	client.on('guildMemberAdd', async (member) => {
+		await addUserToDatabase(member)
+		await addUserSettings(member.id)
+	})
+
 	client.login(process.env.BOT_TOKEN)
 }
 startBot()
