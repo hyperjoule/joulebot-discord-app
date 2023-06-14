@@ -1,4 +1,4 @@
-// index.js
+// index.js test
 const dotenv = require('dotenv')
 dotenv.config()
 
