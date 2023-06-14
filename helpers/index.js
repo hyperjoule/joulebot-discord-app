@@ -1,4 +1,5 @@
 // helpers
+const dotenv = require('dotenv').config()
 const { handleSend } = require('../api')
 const { getPersonalityIdxLbl, getRandomPersonalityIndex } = require('../db/controllers/personalityController')
 const randomPrompts = require('./random_prompts.json')
@@ -75,9 +76,11 @@ async function scheduleRandomDm(client) {
 		const guilds = client.guilds.cache.values()
 
 		for (const guild of guilds) {
-			await sendRandomDm(guild)
-			// Wait between sending messages to different guilds
-			await new Promise(resolve => setTimeout(resolve, 60 * 1000))
+			if (guild.id === process.env.GUILD_ID) {
+				await sendRandomDm(guild)
+				// Wait between sending messages to different guilds
+				await new Promise(resolve => setTimeout(resolve, 60 * 1000))
+			}
 		}
 
 		// Wait before starting the next round of messages

@@ -1,6 +1,5 @@
 // api
-const dotenv = require('dotenv')
-dotenv.config()
+const dotenv = require('dotenv').config()
 const axios = require('axios')
 const chatLogController = require('../db/controllers/chatLogController')
 const { getContentValue, getTemperatureValue, getLabelValue } = require('../db/controllers/personalityController')
