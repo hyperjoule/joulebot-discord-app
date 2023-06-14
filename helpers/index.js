@@ -10,6 +10,7 @@ const getRandomPrompt = () => {
 	const randomIndex = Math.floor(Math.random() * randomPrompts.length)
 	return randomPrompts[randomIndex]
 }
+
 let selectedPersonalityIdx = 0 // for random messages
 
 async function setPersonalityChoices() {
@@ -68,7 +69,6 @@ async function sendRandomDm(guild) {
 		}
 	}
 }
-
 
 async function scheduleRandomDm(client) {
 	while (true) {
