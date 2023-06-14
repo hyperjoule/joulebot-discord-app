@@ -168,6 +168,8 @@ const startBot = async () => {
 	client.on('guildMemberAdd', async (member) => {
 		await addUserToDatabase(member)
 		await addUserSettings(member.id)
+		const personalityIdx = getRandomPersonalityIndex()
+		await handleGreeting(member, personalityIdx, generalChannel)
 	})
 
 	client.login(process.env.BOT_TOKEN)
