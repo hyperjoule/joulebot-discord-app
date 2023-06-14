@@ -129,22 +129,20 @@ const startBot = async () => {
 		if (interaction.isMessageComponent()) {
 			const member = interaction.member
 
-			const generalChannel = member.guild.channels.cache.find(channel => channel.name === 'general' && channel.type === 'GUILD_TEXT')
+			try {
+				const userExists = await checkUserInDatabase(member.id)
 
-			if (generalChannel && interaction.channelId === generalChannel.id) {
-				try {
-					const userExists = await checkUserInDatabase(member.id)
-
-					if (!userExists) {
-						await addUserToDatabase(member)
-						await addUserSettings(member.id)
-						const personalityIdx = getRandomPersonalityIndex()
-						await handleGreeting(member, personalityIdx, generalChannel)
-					}
-				} catch (error) {
-					console.error('Error on interactionCreate:', error)
+				if (!userExists) {
+					await addUserToDatabase(member)
+					await addUserSettings(member.id)
+					const personalityIdx = getRandomPersonalityIndex()
+					await handleGreeting(member, personalityIdx, generalChannel)
 				}
+				
+			} catch (error) {
+				console.error('Error on interactionCreate:', error)
 			}
+			
 		}
 	})
 
