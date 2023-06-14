@@ -1,7 +1,5 @@
 // index.js
-const dotenv = require('dotenv')
-dotenv.config()
-
+const dotenv = require('dotenv').config()
 const initDb = require('./db/init_db')
 const { addAllGuildMembersToDatabase } = require('./utils/db_functions')
 const { checkUserInDatabase } = require('./db/controllers/userController.js')
@@ -46,52 +44,53 @@ const startBot = async () => {
 		const promises = []
     
 		for (const guild of guilds) {
-			promises.push((async () => {
-				await addAllGuildMembersToDatabase(guild)
-				await prepopulateUserSettings()
+			if (guild.id === process.env.GUILD_ID) {
+				promises.push((async () => {
+					await addAllGuildMembersToDatabase(guild)
+					await prepopulateUserSettings()
 
-				await guild.commands.set([
-					{
-						name: 'joulebot',
-						description: 'Ask Joulebot a question!',
-						options: [
-							{
-								name: 'question',
-								type: 3, // STRING
-								description: 'Your question',
-								required: true
-							}
-						]
-					},
-					{
-						name: 'draw',
-						description: 'Have Joulebot request an image from Dall-E!',
-						options: [
-							{
-								name: 'description',
-								type: 3, // STRING
-								description: 'Description of the image',
-								required: true
-							}
-						]
-					},
-					{
-						name: 'personality',
-						description: 'Select a personality for Joulebot',
-						options: [
-							{
-								name: 'choice',
-								type: 3, // STRING
-								description: 'Choose a personality',
-								required: true,
-								choices: await setPersonalityChoices()
-							}
-						]
-					}
-				])
-			})())
+					await guild.commands.set([
+						{
+							name: 'joulebot',
+							description: 'Ask Joulebot a question!',
+							options: [
+								{
+									name: 'question',
+									type: 3, // STRING
+									description: 'Your question',
+									required: true
+								}
+							]
+						},
+						{
+							name: 'draw',
+							description: 'Have Joulebot request an image from Dall-E!',
+							options: [
+								{
+									name: 'description',
+									type: 3, // STRING
+									description: 'Description of the image',
+									required: true
+								}
+							]
+						},
+						{
+							name: 'personality',
+							description: 'Select a personality for Joulebot',
+							options: [
+								{
+									name: 'choice',
+									type: 3, // STRING
+									description: 'Choose a personality',
+									required: true,
+									choices: await setPersonalityChoices()
+								}
+							]
+						}
+					])
+				})())
+			}
 		}
-
 		await Promise.all(promises)
 
 		scheduleRandomDm(client)
@@ -128,7 +127,7 @@ const startBot = async () => {
 	})
 	
 	client.on('interactionCreate', async (interaction) => {
-		if (interaction.isMessage()) {
+		if (interaction.isMessageComponent()) {
 			const member = interaction.member
 
 			const generalChannel = member.guild.channels.cache.find(channel => channel.name === 'general' && channel.type === 'GUILD_TEXT')
@@ -151,7 +150,7 @@ const startBot = async () => {
 
 	client.on('interactionCreate', async interaction => {
 		console.log('Interaction received:', interaction.commandName)
-		if (!interaction.isCommand() && interaction.type !== 'MESSAGE_COMPONENT') return
+		if (!interaction.isMessageComponent() && !interaction.isCommand()) return
 
 		switch (interaction.commandName) {
 		case 'joulebot':

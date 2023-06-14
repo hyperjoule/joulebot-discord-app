@@ -5,7 +5,7 @@ const axios = require('axios')
 const chatLogController = require('../db/controllers/chatLogController')
 const { getContentValue, getTemperatureValue, getLabelValue } = require('../db/controllers/personalityController')
 const API_KEY = process.env.API_KEY
-const MODEL = 'gpt-4' // default.  can override with useModel passed to handleSend
+const MODEL = 'gpt-3.5-turbo-0613' // default.  can override with useModel passed to handleSend
 const MAX_TOKENS = 2000
 const MAX_HISTORY = 10 
 const MAX_RETRIES = 3
@@ -189,7 +189,7 @@ const getEmojiReaction = async (messageContent) => {
 					{ role: 'user', content: messageContent },
 					{ role: 'assistant', content: 'React with a unicode emoji to this message' }
 				],
-				model: 'gpt-3.5-turbo', // this needs to be at least gpt-3.5
+				model: 'gpt-3.5-turbo-0613', // this needs to be at least gpt-3.5
 				max_tokens: 10
 			},
 			{

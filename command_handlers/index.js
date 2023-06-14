@@ -29,8 +29,8 @@ async function handleAskCommand(interaction) {
 }
 
 async function handleDrawCommand(interaction) {
-	if (!message.member.hasPermission('ADMINISTRATOR')) {
-		message.reply('Sorry, you do not have the necessary permissions to use this command.')
+	if (!interaction.member.permissions.has('ADMINISTRATOR')) {
+		await interaction.reply('Sorry, you do not have the necessary permissions to use this command.')
 		return
 	}
 	await interaction.deferReply()

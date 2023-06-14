@@ -34,14 +34,24 @@ async function sendRandomDm(guild) {
 		try {
 			const fetchedMembers = await guild.members.fetch({ limit: 100, withPresences: true, time: 60000 })
 			const guildMembers = fetchedMembers.filter(member => !member.user.bot)
-			const random_member = guildMembers.random()
-			const question = `Hi Joulebot!  I am ${random_member.displayName}. Greet me and comment on this conversation starter: ${getRandomPrompt()}`
+			let randomMember = guildMembers.random()
+			let question = `${randomMember.displayName}: ${getRandomPrompt()}`
 			selectedPersonalityIdx = await getRandomPersonalityIndex()
-			const chatbotResponse = await handleSend(question, selectedPersonalityIdx, random_member.user.id)
-			await random_member.send(chatbotResponse)
-			console.log(`Sent random message to ${random_member.displayName}`)
+			const chatbotResponse = await handleSend(question, selectedPersonalityIdx, randomMember.user.id)
+
+			// Try to send the message
+			await randomMember.send(chatbotResponse)
+			console.log(`Sent random message to ${randomMember.displayName}`)
 			break // Exit the loop if successful
+
 		} catch (error) {
+			if (error.code === 50007) { // Error: Cannot send messages to this user
+				console.log("Cannot send messages to this user, trying another one...")
+				// No increment for retries in this case as we are just skipping the user who blocked DMs
+				continue // Skip the rest of the loop and start from the beginning
+			}
+
+			// Original error handling
 			if (error.code === 'GuildMembersTimeout') {
 				console.log("Members didn't arrive in time. Increase the timeout duration if needed.")
 			} else {
@@ -57,6 +67,7 @@ async function sendRandomDm(guild) {
 		}
 	}
 }
+
 
 async function scheduleRandomDm(client) {
 	while (true) {
