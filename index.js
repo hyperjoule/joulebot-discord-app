@@ -137,6 +137,7 @@ const startBot = async () => {
 
 					if (!userExists) {
 						await addUserToDatabase(member)
+						await addUserSettings(member.id)
 						const personalityIdx = getRandomPersonalityIndex()
 						await handleGreeting(member, personalityIdx, generalChannel)
 					}
