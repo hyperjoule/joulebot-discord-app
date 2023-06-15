@@ -90,9 +90,12 @@ async function handleReply(message, txtString = ' says: ') {
 	const typingInterval = setInterval(() => {
 		message.channel.sendTyping()
 	}, 3000) // Repeat every 3 seconds.
-	const chatbotResponse = await handleSend(userName + txtString + userInput, selectedPersonalityIdx, message.author.id)
+	const chatbotResponses = await handleSend(userName + txtString + userInput, selectedPersonalityIdx, message.author.id)
 	clearInterval(typingInterval)
-	await message.reply(chatbotResponse)
+	// Send each message from the array
+	for (const response of chatbotResponses) {
+		await message.reply(response)
+	}
 }
 
 module.exports = {

@@ -8,6 +8,7 @@ const MODEL = 'gpt-3.5-turbo-0613' // default.  can override with useModel passe
 const MAX_TOKENS = 2000
 const MAX_HISTORY = 10 
 const MAX_RETRIES = 3
+const MAX_MESSAGE_LENGTH = 2000
 const conversationHistory = []
 
 // Approximate token count of string
@@ -124,8 +125,26 @@ const handleSend = async (textInput, personalityIdx = 0, discordId, useModel=MOD
 			const promptTokens = response.data.usage.prompt_tokens
 			const completionTokens = response.data.usage.completion_tokens
 			const totalTokens = response.data.usage.total_tokens
-			const text = response.data.choices[0].message.content
+			let text = response.data.choices[0].message.content
 			console.log('Answer:' + text)
+
+			// Chonkify the response if necessary
+			let replyMessages = []
+			let tempMessage = text
+			while (tempMessage.length > 0) {
+				let endIndex
+				if (tempMessage.length > MAX_MESSAGE_LENGTH) {
+					const cutIndex = tempMessage.lastIndexOf('\n', MAX_MESSAGE_LENGTH)
+					endIndex = cutIndex > 0 ? cutIndex : MAX_MESSAGE_LENGTH
+				} else {
+					endIndex = tempMessage.length
+				}
+				const messageChunk = tempMessage.substring(0, endIndex).trim()
+				if (messageChunk.length > 0) {
+					replyMessages.push(messageChunk)
+				}
+				tempMessage = tempMessage.substring(endIndex).trim()
+			}
 
 			// Prepare data for insertion into the database
 			const dataToInsert = {
@@ -147,8 +166,8 @@ const handleSend = async (textInput, personalityIdx = 0, discordId, useModel=MOD
 				console.error('Error inserting chat log data:', err)
 			}	
 
-			const formattedResponse = `**${personalityLabel}**\n${text}`
-			return formattedResponse
+			const formattedResponses = replyMessages.map(chunk => `**${personalityLabel}**\n${chunk}`)
+			return formattedResponses
 			
 		} catch (error) {
 			if (
@@ -176,7 +195,7 @@ const handleSend = async (textInput, personalityIdx = 0, discordId, useModel=MOD
 	}
 
 	// If all retries failed, return an error message
-	return "I'm sorry, but I'm having trouble connecting right now. Please try again later."
+	return ["I'm sorry, but I'm having trouble connecting right now. Please try again later."]
 }
 
 const getEmojiReaction = async (messageContent) => {

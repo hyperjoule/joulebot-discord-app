@@ -40,9 +40,23 @@ async function sendRandomDm(guild) {
 			let question = `${randomMember.displayName}: ${getRandomPrompt()}`
 			selectedPersonalityIdx = await getRandomPersonalityIndex()
 			const chatbotResponse = await handleSend(question, selectedPersonalityIdx, randomMember.user.id)
+			console.log(chatbotResponse)  // log the chatbotResponse object
+			// Check if the chatbotResponse is valid
+			if (!chatbotResponse || chatbotResponse.length === 0) {
+				throw new Error('Failed to generate a valid chatbot response.')
+			}
+
+			// Concatenate all elements in the chatbotResponse array into a single string
+			let concatenatedResponse = chatbotResponse.join('\n').trim()
+
+			// Check if the concatenated string is empty
+			if (concatenatedResponse === '') {
+				throw new Error('Failed to generate a valid chatbot response.')
+			}
 
 			// Try to send the message
-			await randomMember.send(chatbotResponse)
+			await randomMember.send(concatenatedResponse)
+
 			console.log(`Sent random message to ${randomMember.displayName}`)
 			break // Exit the loop if successful
 
